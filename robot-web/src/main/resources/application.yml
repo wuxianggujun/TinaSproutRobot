@@ -1,0 +1,7 @@
+# 应用名称
+spring:
+  application:
+    name: TinaSproutRobot
+
+server:
+  port: 8080

@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>2.7.0</version>
+        <relativePath/> <!-- lookup parent from repository -->
+    </parent>
+    <groupId>com.wuxianggujun</groupId>
+    <artifactId>TinaSproutRobot</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <modules>
+        <module>robot-base</module>
+        <module>robot-core</module>
+        <module>robot-web</module>
+    </modules>
+    <name>TinaSproutRobot</name>
+    <description>TinaSproutRobot</description>
+    <!--父模块打包类型必须为pom-->
+    <packaging>pom</packaging>
+
+    <properties>
+        <java.version>1.8</java.version>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+        <spring-boot.version>2.7.0</spring-boot.version>
+        <skipTests>true</skipTests>
+    </properties>
+
+    <!--版本说明，这里统一管理依赖的版本号-->
+    <dependencyManagement>
+        <dependencies>
+
+            <dependency>
+                <groupId>com.wuxianggujun</groupId>
+                <artifactId>robot-base</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <dependency>
+                <groupId>com.wuxianggujun</groupId>
+                <artifactId>robot-core</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+            <dependency>
+                <groupId>com.wuxianggujun</groupId>
+                <artifactId>robot-web</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+
+        </dependencies>
+
+    </dependencyManagement>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+                <version>2.7.0</version>
+                <configuration>
+                    <mainClass>com.wuxianggujun.RobotWebApplication</mainClass>
+                    <skip>true</skip>
+                </configuration>
+            </plugin>
+
+        </plugins>
+
+    </build>
+
+</project>
