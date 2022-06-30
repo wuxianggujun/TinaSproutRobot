@@ -62,7 +62,6 @@
                 <version>2.7.0</version>
                 <configuration>
                     <mainClass>com.wuxianggujun.RobotWebApplication</mainClass>
-                    <skip>true</skip>
                 </configuration>
             </plugin>
 

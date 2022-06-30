@@ -1,7 +1,45 @@
-# 应用名称
-spring:
-  application:
-    name: TinaSproutRobot
-
 server:
   port: 8080
+
+# 应用名称
+spring:
+  batch:
+    job:
+      enabled: false
+  profiles:
+    active: default
+
+  application:
+    name: TinaSproutRobot
+    #JDBC数据库连接
+  datasource:
+    druid:
+      url: jdbc:mysql://localhost:3306/TinaSprout-Go-CqHttp?useUnicode=true&characterEncoding=utf-8&useSSL=false
+      username: root
+      password: root
+      driver-class-name: com.mysql.cj.jdbc.Driver
+  #开启热修复
+  devtools:
+    restart:
+      enabled: true
+
+
+#日志配置
+logging:
+  level:
+    root: info
+    org:
+      springframework:
+        web:
+          servlet:
+            DispatcherServlet: info
+
+        boot:
+          autoconfigure: error
+
+
+  file:
+    name: blog/blog-dev.log
+
+
+
