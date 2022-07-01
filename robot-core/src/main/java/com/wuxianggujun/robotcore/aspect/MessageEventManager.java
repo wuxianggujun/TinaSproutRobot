@@ -14,6 +14,8 @@ import java.util.Set;
  */
 @Configuration
 public class MessageEventManager {
+//    private final Map<String, Object> map = new ConcurrentHashMap<>();
+
     //扫描包
     @PostConstruct
     private void scan() {
@@ -29,7 +31,7 @@ public class MessageEventManager {
             String messageType = clazz.getAnnotation(MessageEvent.class).value();
             try {
                 if (messageType.equals("group") || messageType.equals("private")) {
-                    MessageEventContext.getInstance().addEventListener(messageType,(MessageListener) clazz.getDeclaredConstructor().newInstance());
+                    MessageEventContext.getInstance().addEventListener(messageType, (MessageListener) clazz.getDeclaredConstructor().newInstance());
                 } else {
                     throw new IllegalStateException("不要用不存在的字段");
                 }
@@ -37,6 +39,6 @@ public class MessageEventManager {
                 e.printStackTrace();
             }
         }
-
+        System.out.println("cao");
     }
 }
