@@ -54,7 +54,7 @@ public class BotDispatcher {
         objectMapper.findAndRegisterModules();
         //反序列化的时候如果多了其他属性,不抛出异常
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
-        messageEventContext = new MessageEventContext();
+        messageEventContext = MessageEventContext.getInstance();
 
     }
 
@@ -79,7 +79,7 @@ public class BotDispatcher {
                         //如果是群聊信息
                         case "group":
                             GroupMessage groupMessage = objectMapper.readValue(text, GroupMessage.class);
-                            messageEventContext.addEventListener(new TestGroupMessage());
+
                             messageEvent = groupMessage;
                             break;
                         case "private":
@@ -88,6 +88,7 @@ public class BotDispatcher {
                         default:
                             System.out.println("MessageType:" + message_type.asText());
                     }
+                    messageEventContext.addEventListener(new TestGroupMessage());
                     messageEventContext.handler(messageEvent);
                 } else if (postType.asText().equals("meta_event")) {
                     //元事件

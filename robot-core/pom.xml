@@ -36,6 +36,12 @@
             <artifactId>spring-boot-starter-web</artifactId>
         </dependency>
 
+        <!--添加aop库-->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-aop</artifactId>
+        </dependency>
+
 
         <dependency>
             <groupId>com.fasterxml.jackson.datatype</groupId>
@@ -43,6 +49,12 @@
             <version>2.13.3</version>
         </dependency>
 
+        <!-- https://mvnrepository.com/artifact/org.reflections/reflections 强大的反射库-->
+        <dependency>
+            <groupId>org.reflections</groupId>
+            <artifactId>reflections</artifactId>
+            <version>0.10.2</version>
+        </dependency>
 
     </dependencies>
 

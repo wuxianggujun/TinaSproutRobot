@@ -16,6 +16,24 @@ public class MessageEventContext {
     //监听者合集
     private final Map<String, LinkedHashSet<MessageListener>> eventHandlers = new ConcurrentHashMap<>();
 
+    private static volatile MessageEventContext instance = null;
+
+    private MessageEventContext() {
+
+    }
+
+    public static MessageEventContext getInstance() {
+        if (instance == null) {
+            synchronized (MessageEventContext.class) {
+                if (instance == null) {
+                    instance = new MessageEventContext();
+                }
+            }
+        }
+        return instance;
+    }
+
+
     public void addEventListener(MessageListener messageListener) {
         if (messageListener instanceof GroupMessageListener) {
             //先判断包不包含group分组

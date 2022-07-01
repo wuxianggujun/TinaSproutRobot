@@ -8,6 +8,9 @@ spring:
       enabled: false
   profiles:
     active: default
+    #aop开启
+  aop:
+    auto: true
 
   application:
     name: TinaSproutRobot
