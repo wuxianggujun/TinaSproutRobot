@@ -53,8 +53,17 @@ public class MessageEventContext {
         }
     }
 
+    public void addEventListener(String messageType, MessageListener messageListener) {
+        //先判断包不包含group分组
+        LinkedHashSet<MessageListener> listeners = eventHandlers.get(messageType);
+        if (listeners == null) {
+            listeners = new LinkedHashSet<>();
+        }
+        listeners.add(messageListener);
+        eventHandlers.put(messageType, listeners);
+    }
+
     public void handler(MessageEvent messageEvent) {
-        System.out.println(messageEvent.getMessageType());
         if (messageEvent.getMessageType() != null) {
             String messageType = null;
             if (messageEvent.getMessageType().equals("group")) {
@@ -67,6 +76,7 @@ public class MessageEventContext {
             LinkedHashSet<MessageListener> listeners = eventHandlers.get(messageType);
             Iterator iterator = listeners.iterator();
             while (iterator.hasNext()) {
+                System.out.println("LinkedHashSet:" + listeners.size());
                 MessageListener listener = (MessageListener) iterator.next();
                 listener.handler(messageEvent);
             }

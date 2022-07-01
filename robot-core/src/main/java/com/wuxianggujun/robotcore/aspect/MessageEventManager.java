@@ -26,9 +26,14 @@ public class MessageEventManager {
         //获取带注解的类
         Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(MessageEvent.class);
         for (Class<?> clazz : typesAnnotatedWith) {
-            System.out.println(clazz.getAnnotation(MessageEvent.class).value());
+            String messageType = clazz.getAnnotation(MessageEvent.class).value();
+            System.out.println(messageType);
             try {
-                MessageEventContext.getInstance().addEventListener((MessageListener) clazz.getDeclaredConstructor().newInstance());
+                if (messageType.equals("group") || messageType.equals("private")) {
+                    MessageEventContext.getInstance().addEventListener((MessageListener) clazz.getDeclaredConstructor().newInstance());
+                } else {
+                    throw new IllegalStateException("不要用不存在的字段");
+                }
             } catch (Exception e) {
                 e.printStackTrace();
             }
