@@ -1,5 +1,6 @@
 package com.wuxianggujun.robotcore.core.framework;
 
+import com.wuxianggujun.robotcore.core.BotDispatcher;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
@@ -61,6 +62,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
             //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
+            BotDispatcher.getInstance().handle(textFrame.text());
             System.out.println("WebSocket 客户端收到消息: " + textFrame.text());
         } else if (frame instanceof PongWebSocketFrame) {
             System.out.println("WebSocket Client received pong");
