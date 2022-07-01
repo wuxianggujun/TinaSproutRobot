@@ -10,7 +10,6 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
 public class RobotWebApplication implements CommandLineRunner {
 
     public static void main(String[] args) {
-
         SpringApplication.run(RobotWebApplication.class, args);
     }
 
