@@ -5,7 +5,6 @@ import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.wuxianggujun.robotcore.listener.MessageEventContext;
-import com.wuxianggujun.robotcore.listener.TestGroupMessage;
 import com.wuxianggujun.robotcore.listener.message.GroupMessage;
 import com.wuxianggujun.robotcore.listener.message.MessageEvent;
 import com.wuxianggujun.robotcore.listener.message.PrivateMessage;
@@ -88,7 +87,6 @@ public class BotDispatcher {
                         default:
                             System.out.println("MessageType:" + message_type.asText());
                     }
-                    messageEventContext.addEventListener(new TestGroupMessage());
                     messageEventContext.handler(messageEvent);
                 } else if (postType.asText().equals("meta_event")) {
                     //元事件

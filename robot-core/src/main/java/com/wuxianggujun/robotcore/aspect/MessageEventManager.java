@@ -27,17 +27,15 @@ public class MessageEventManager {
         Set<Class<?>> typesAnnotatedWith = reflections.getTypesAnnotatedWith(MessageEvent.class);
         for (Class<?> clazz : typesAnnotatedWith) {
             String messageType = clazz.getAnnotation(MessageEvent.class).value();
-            System.out.println(messageType);
             try {
                 if (messageType.equals("group") || messageType.equals("private")) {
-                    MessageEventContext.getInstance().addEventListener((MessageListener) clazz.getDeclaredConstructor().newInstance());
+                    MessageEventContext.getInstance().addEventListener(messageType,(MessageListener) clazz.getDeclaredConstructor().newInstance());
                 } else {
                     throw new IllegalStateException("不要用不存在的字段");
                 }
             } catch (Exception e) {
                 e.printStackTrace();
             }
-            //System.out.println((Class<? extends GroupMessageListener> gClazz)clazz.getName());
         }
 
     }

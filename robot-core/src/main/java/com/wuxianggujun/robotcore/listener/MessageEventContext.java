@@ -36,20 +36,9 @@ public class MessageEventContext {
 
     public void addEventListener(MessageListener messageListener) {
         if (messageListener instanceof GroupMessageListener) {
-            //先判断包不包含group分组
-            LinkedHashSet<MessageListener> listeners = eventHandlers.get("group");
-            if (listeners == null) {
-                listeners = new LinkedHashSet<>();
-            }
-            listeners.add(messageListener);
-            eventHandlers.put("group", listeners);
+            addEventListener("group", messageListener);
         } else if (messageListener instanceof PrivateMessageListener) {
-            LinkedHashSet<MessageListener> listeners = eventHandlers.get("private");
-            if (listeners == null) {
-                listeners = new LinkedHashSet<>();
-            }
-            listeners.add(messageListener);
-            eventHandlers.put("private", listeners);
+            addEventListener("private", messageListener);
         }
     }
 
