@@ -3,9 +3,9 @@ package com.wuxianggujun.robotcore.listener;
 
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
 import com.wuxianggujun.robotcore.listener.impl.PrivateMessageListener;
-import com.wuxianggujun.robotcore.listener.message.GroupMessage;
+import com.wuxianggujun.robotcore.listener.message.GroupMessageEvent;
 import com.wuxianggujun.robotcore.listener.message.MessageEvent;
-import com.wuxianggujun.robotcore.listener.message.PrivateMessage;
+import com.wuxianggujun.robotcore.listener.message.PrivateMessageEvent;
 
 import java.util.Iterator;
 import java.util.LinkedHashSet;
@@ -56,10 +56,10 @@ public class MessageEventContext {
         if (messageEvent.getMessageType() != null) {
             String messageType = null;
             if (messageEvent.getMessageType().equals("group")) {
-                GroupMessage groupMessage = (GroupMessage) messageEvent;
+                GroupMessageEvent groupMessage = (GroupMessageEvent) messageEvent;
                 messageType = groupMessage.getMessageType();
             } else if (messageEvent.getMessageType().equals("private")) {
-                PrivateMessage privateMessage = (PrivateMessage) messageEvent;
+                PrivateMessageEvent privateMessage = (PrivateMessageEvent) messageEvent;
                 messageType = privateMessage.getMessageType();
             }
             LinkedHashSet<MessageListener> listeners = eventHandlers.get(messageType);

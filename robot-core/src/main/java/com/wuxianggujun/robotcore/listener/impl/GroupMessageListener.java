@@ -1,10 +1,10 @@
 package com.wuxianggujun.robotcore.listener.impl;
 
 import com.wuxianggujun.robotcore.listener.MessageListener;
-import com.wuxianggujun.robotcore.listener.message.GroupMessage;
+import com.wuxianggujun.robotcore.listener.message.GroupMessageEvent;
 
-public interface GroupMessageListener extends MessageListener<GroupMessage>{
+public interface GroupMessageListener extends MessageListener<GroupMessageEvent>{
 
     @Override
-    void handler(GroupMessage message);
+    void handler(GroupMessageEvent message);
 }

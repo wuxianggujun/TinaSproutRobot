@@ -1,9 +1,10 @@
 package com.wuxianggujun.robotcore.annotation;
 
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Target;
+import java.lang.annotation.*;
 
 @Target({ElementType.FIELD})
-public @interface BotTest {
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface Bot {
     String value() default "";
 }

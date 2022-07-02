@@ -8,7 +8,7 @@ import com.wuxianggujun.robotcore.listener.common.Anonymous;
  * 群消息
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class GroupMessage extends MessageEvent {
+public class GroupMessageEvent extends MessageEvent {
     @JsonProperty("meta_event_type")
     private String metaEventType;
 

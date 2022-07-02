@@ -4,10 +4,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * 私信
+ * 私信消息
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class PrivateMessage extends MessageEvent {
+public class PrivateMessageEvent extends MessageEvent {
     @JsonProperty("sub_type")
     private String subType;
 

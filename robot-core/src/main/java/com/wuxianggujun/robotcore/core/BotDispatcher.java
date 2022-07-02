@@ -4,12 +4,16 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.wuxianggujun.robotcore.annotation.BotTest;
+import com.wuxianggujun.robotcore.annotation.TestAnnotation;
+import com.wuxianggujun.robotcore.reflections.EventTypeRepository;
 import com.wuxianggujun.robotcore.listener.MessageEventContext;
-import com.wuxianggujun.robotcore.listener.message.GroupMessage;
+import com.wuxianggujun.robotcore.listener.message.GroupMessageEvent;
 import com.wuxianggujun.robotcore.listener.message.MessageEvent;
-import com.wuxianggujun.robotcore.listener.message.PrivateMessage;
+import com.wuxianggujun.robotcore.listener.message.PrivateMessageEvent;
 import org.reflections.Reflections;
+import org.reflections.scanners.Scanners;
+import org.reflections.util.ClasspathHelper;
+import org.reflections.util.ConfigurationBuilder;
 
 import java.lang.reflect.Field;
 import java.util.Set;
@@ -72,27 +76,36 @@ public class BotDispatcher {
                 //先创建机器人实例对象
                 JsonNode self_id = jsonNode.get("self_id");
 
+
+                ConfigurationBuilder configurationBuilder = new ConfigurationBuilder()
+                        .addUrls(ClasspathHelper.forPackage("com.wuxianggujun"))
+                        .addScanners(Scanners.FieldsAnnotated);
+                //扫描包名
+                Reflections reflections = new Reflections(configurationBuilder);
+                EventTypeRepository typeRepository = new EventTypeRepository(reflections);
+                Set<Field> cao = reflections.getFieldsAnnotatedWith(TestAnnotation.class);
+
+                for (Field field : typeRepository.getTypeProperties()) {
+                    TestAnnotation testAnnotation = field.getAnnotation(TestAnnotation.class);
+                    System.out.println("自定义注解：" + testAnnotation.value());
+                }
+
                 //解析JSON判断是不是message消息还是心跳包
                 if (postType.asText().equals("message")) {
 
                     JsonNode message_type = jsonNode.get("message_type");
                     MessageEvent messageEvent = null;
-                    //扫描包名
-                    Reflections reflections = new Reflections("com.wuxianggujun.robotweb");
-                    Set<Field> botTestAnnotations = reflections.getFieldsAnnotatedWith(BotTest.class);
-                    for (Field field : botTestAnnotations) {
-                        System.out.println(field.getAnnotation(BotTest.class).value());
-                    }
+
 
                     switch (message_type.asText()) {
                         //如果是群聊信息
                         case "group":
-                            GroupMessage groupMessage = objectMapper.readValue(text, GroupMessage.class);
+                            GroupMessageEvent groupMessage = objectMapper.readValue(text, GroupMessageEvent.class);
 
                             messageEvent = groupMessage;
                             break;
                         case "private":
-                            PrivateMessage privateMessage = objectMapper.readValue(text, PrivateMessage.class);
+                            PrivateMessageEvent privateMessage = objectMapper.readValue(text, PrivateMessageEvent.class);
                             messageEvent = privateMessage;
                             break;
                         default:

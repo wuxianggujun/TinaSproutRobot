@@ -1,10 +1,10 @@
 package com.wuxianggujun.robotcore.listener.impl;
 
 import com.wuxianggujun.robotcore.listener.MessageListener;
-import com.wuxianggujun.robotcore.listener.message.PrivateMessage;
+import com.wuxianggujun.robotcore.listener.message.PrivateMessageEvent;
 
-public interface PrivateMessageListener extends MessageListener<PrivateMessage> {
+public interface PrivateMessageListener extends MessageListener<PrivateMessageEvent> {
 
     @Override
-    void handler(PrivateMessage message);
+    void handler(PrivateMessageEvent message);
 }
