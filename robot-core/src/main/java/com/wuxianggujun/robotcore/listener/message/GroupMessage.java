@@ -2,6 +2,7 @@ package com.wuxianggujun.robotcore.listener.message;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.wuxianggujun.robotcore.listener.common.Anonymous;
 
 /**
  * 群消息
@@ -16,7 +17,7 @@ public class GroupMessage extends MessageEvent {
     @JsonProperty("message_id")
     private int messageId;
     @JsonProperty("anonymous")
-    private String anonymous;
+    private Anonymous anonymous;
     @JsonProperty("group_id")
     private int groupId;
     @JsonProperty("message_seq")
@@ -49,11 +50,11 @@ public class GroupMessage extends MessageEvent {
         this.messageId = messageId;
     }
 
-    public String getAnonymous() {
+    public Anonymous getAnonymous() {
         return anonymous;
     }
 
-    public void setAnonymous(String anonymous) {
+    public void setAnonymous(Anonymous anonymous) {
         this.anonymous = anonymous;
     }
 

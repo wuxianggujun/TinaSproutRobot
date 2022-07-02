@@ -4,11 +4,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.wuxianggujun.robotcore.annotation.BotTest;
 import com.wuxianggujun.robotcore.listener.MessageEventContext;
 import com.wuxianggujun.robotcore.listener.message.GroupMessage;
 import com.wuxianggujun.robotcore.listener.message.MessageEvent;
 import com.wuxianggujun.robotcore.listener.message.PrivateMessage;
+import org.reflections.Reflections;
 
+import java.lang.reflect.Field;
+import java.util.Set;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -73,6 +77,12 @@ public class BotDispatcher {
 
                     JsonNode message_type = jsonNode.get("message_type");
                     MessageEvent messageEvent = null;
+                    //扫描包名
+                    Reflections reflections = new Reflections("com.wuxianggujun.robotweb");
+                    Set<Field> botTestAnnotations = reflections.getFieldsAnnotatedWith(BotTest.class);
+                    for (Field field : botTestAnnotations) {
+                        System.out.println(field.getAnnotation(BotTest.class).value());
+                    }
 
                     switch (message_type.asText()) {
                         //如果是群聊信息
@@ -83,6 +93,7 @@ public class BotDispatcher {
                             break;
                         case "private":
                             PrivateMessage privateMessage = objectMapper.readValue(text, PrivateMessage.class);
+                            messageEvent = privateMessage;
                             break;
                         default:
                             System.out.println("MessageType:" + message_type.asText());

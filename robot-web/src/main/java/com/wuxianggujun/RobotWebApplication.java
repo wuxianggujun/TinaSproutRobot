@@ -1,7 +1,6 @@
 package com.wuxianggujun;
 
 import com.wuxianggujun.robotcore.core.framework.WebSocketClient;
-import com.wuxianggujun.robotweb.event.GroupMessageEvent;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -16,6 +15,5 @@ public class RobotWebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         WebSocketClient.main(args);
-        new GroupMessageEvent();
     }
 }

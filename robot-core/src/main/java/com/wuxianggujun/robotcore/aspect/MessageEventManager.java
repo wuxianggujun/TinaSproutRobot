@@ -39,6 +39,5 @@ public class MessageEventManager {
                 e.printStackTrace();
             }
         }
-        System.out.println("cao");
     }
 }
