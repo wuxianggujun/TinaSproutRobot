@@ -41,6 +41,7 @@ public class BotDispatcher {
             synchronized (BotDispatcher.class) {
                 if (instance == null) {
                     instance = new BotDispatcher();
+                    instance.init();
                 }
             }
         }
@@ -57,11 +58,12 @@ public class BotDispatcher {
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         messageEventContext = MessageEventContext.getInstance();
 
+
     }
 
 
     public void handle(String text) {
-        init();
+
         threadPool.submit(() -> {
             try {
                 JsonNode jsonNode = objectMapper.readTree(text);
@@ -70,7 +72,9 @@ public class BotDispatcher {
                 //先创建机器人实例对象
                 JsonNode self_id = jsonNode.get("self_id");
 
-                BotRepository botRepository = new BotRepository("com.wuxianggujun", Scanners.FieldsAnnotated, Scanners.SubTypes);
+
+                BotRepository botRepository = new BotRepository("com.wuxianggujun", Scanners.FieldsAnnotated);
+
                 botRepository.getBotSubTypes();
 
                 //解析JSON判断是不是message消息还是心跳包
