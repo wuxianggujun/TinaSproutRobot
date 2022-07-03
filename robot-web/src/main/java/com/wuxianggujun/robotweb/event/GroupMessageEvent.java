@@ -13,7 +13,6 @@ public class GroupMessageEvent implements GroupMessageListener {
 
     @Override
     public void handler(com.wuxianggujun.robotcore.listener.message.GroupMessageEvent message) {
-        //bot.setName("wuxianggujun");
-        System.out.println(message.getMessage());
+
     }
 }

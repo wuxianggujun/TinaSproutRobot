@@ -2,7 +2,7 @@ package com.wuxianggujun.robotcore.annotation;
 
 import java.lang.annotation.*;
 
-@Target({ElementType.FIELD, ElementType.TYPE})
+@Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
 public @interface Bot {
