@@ -1,6 +1,8 @@
 package com.wuxianggujun.robotcore.reflections;
 
 import com.wuxianggujun.robotcore.annotation.Bot;
+import com.wuxianggujun.robotcore.annotation.MessageEvent;
+import com.wuxianggujun.robotcore.enums.MessageEventType;
 import com.wuxianggujun.robotcore.listener.MessageListener;
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
 import org.reflections.Reflections;
@@ -59,10 +61,25 @@ public class BotRepository {
         List<Class<? extends MessageListener>> filters = classSet.stream()
                 .filter(aClass -> !Modifier.isAbstract(aClass.getModifiers())).collect(Collectors.toList());
         for (Class<? extends MessageListener> clazz : filters) {
+
+            System.out.println(clazz.getName());
+            MessageEvent messageEvent = clazz.getAnnotation(MessageEvent.class);
+            if (messageEvent != null) {
+                MessageEventType messageEventType = messageEvent.value();
+                System.out.println(messageEventType);
+
+            }
+
+            System.out.println(clazz.getName());
+            System.out.println(clazz.getAnnotation(MessageEvent.class));
             //判断是不是GroupMessageListener,继承的接口是没有用的
             if (GroupMessageListener.class.isAssignableFrom(clazz)) {
+
                 try {
-                    System.out.println(clazz.getAnnotation(Bot.class).annotationType());
+                    //我现在应该获取枚举类型
+//                    Bot bot = clazz.getDeclaredAnnotation(Bot.class);
+//                    System.out.println("nb" + bot.value());
+                    //System.out.println(clazz.getAnnotation(Bot.class).value());
                     //System.out.println(clazz.getDeclaredConstructor().newInstance());
                 } catch (Exception e) {
                     throw new RuntimeException(e);

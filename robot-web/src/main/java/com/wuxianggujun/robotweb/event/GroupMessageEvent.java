@@ -2,9 +2,10 @@ package com.wuxianggujun.robotweb.event;
 
 import com.wuxianggujun.robotcore.annotation.Bot;
 import com.wuxianggujun.robotcore.annotation.MessageEvent;
+import com.wuxianggujun.robotcore.enums.MessageEventType;
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
 
-@MessageEvent(value = "group")
+@MessageEvent(MessageEventType.GROUP)
 public class GroupMessageEvent implements GroupMessageListener {
 
     @Bot("我是")
