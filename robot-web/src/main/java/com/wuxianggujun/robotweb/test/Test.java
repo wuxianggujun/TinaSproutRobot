@@ -1,9 +1,20 @@
 package com.wuxianggujun.robotweb.test;
 
-import com.wuxianggujun.robotcore.annotation.Bot;
+import com.wuxianggujun.robotcore.annotation.BotAnnotation;
+import com.wuxianggujun.robotcore.core.bot.Bot;
 
-public class Test extends com.wuxianggujun.robotcore.core.bot.Bot {
-    @Bot("无相孤君")
-    private String name;
-    private int i = 0;
+public class Test {
+    @BotAnnotation
+    private int i = 1000;
+
+    @BotAnnotation
+    private Bot bot;
+
+    public int getI() {
+        return i;
+    }
+
+    public Bot getBot() {
+        return bot;
+    }
 }

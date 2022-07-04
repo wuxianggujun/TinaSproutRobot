@@ -1,7 +1,9 @@
 package com.wuxianggujun.robotcore.reflections;
 
-import com.wuxianggujun.robotcore.annotation.Bot;
+import com.wuxianggujun.robotbase.cache.ObjectCache;
+import com.wuxianggujun.robotcore.annotation.BotAnnotation;
 import com.wuxianggujun.robotcore.annotation.MessageEvent;
+import com.wuxianggujun.robotcore.core.bot.Bot;
 import com.wuxianggujun.robotcore.enums.MessageEventType;
 import com.wuxianggujun.robotcore.listener.MessageListener;
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
@@ -12,6 +14,7 @@ import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Modifier;
 import java.util.List;
 import java.util.Set;
@@ -33,14 +36,14 @@ public class BotRepository {
 
     public Set<Field> getBotFields() {
         if (botFieldSet == null) {
-            botFieldSet = reflections.getFieldsAnnotatedWith(Bot.class);
+            botFieldSet = reflections.getFieldsAnnotatedWith(BotAnnotation.class);
         }
         return botFieldSet;
     }
 
     public Set<Class<?>> getBotClass() {
         if (botClassSet == null) {
-            botClassSet = reflections.getTypesAnnotatedWith(Bot.class);
+            botClassSet = reflections.getTypesAnnotatedWith(BotAnnotation.class);
         }
         return botClassSet;
     }
@@ -87,6 +90,39 @@ public class BotRepository {
             }
 
             //System.out.println("list: " + clazz.getName());
+        }
+    }
+
+    public void getBotField() throws IllegalAccessException, NoSuchMethodException, InvocationTargetException, InstantiationException {
+        Reflections reflections = new Reflections(new ConfigurationBuilder()
+                .forPackages("com.wuxianggujun.robotweb")
+                .setScanners(Scanners.values()));
+        //Set<Class<?>> botClass = reflections.getTypesAnnotatedWith()
+        Set<Field> botFieldSet = reflections.getFieldsAnnotatedWith(BotAnnotation.class);
+
+        for (Field field : botFieldSet) {
+            //System.out.println(field);
+            //如果指定类型的注释存在于此元素上,否则返回false。这种方法的设计主要是为了方便访问标记注释.
+            if (field.isAnnotationPresent(BotAnnotation.class)) {
+                Object object = field.getDeclaringClass().getDeclaredConstructor().newInstance();
+                if (!field.canAccess(object)) {
+                    field.setAccessible(true);
+                }
+                Class<?> botClass = field.getType();
+                if (Bot.class.equals(botClass)) {
+                    //创建了bot对象
+                    Bot bot = (Bot) botClass.getDeclaredConstructor().newInstance();
+                    bot.setAge(120);
+                    bot.setName("无相");
+                    //接下来要获取注解所在的类
+                    //返回表示声明此对象所表示的字段的类或接口的对象
+                    field.get(object);
+                    field.set(object, bot);
+                    ObjectCache.getInstance().putCache(field.getDeclaringClass().getName(), object);
+                    System.out.println(object);
+                }
+
+            }
         }
     }
 

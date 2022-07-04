@@ -65,7 +65,7 @@ public class MessageEventContext {
             LinkedHashSet<MessageListener> listeners = eventHandlers.get(messageType);
             Iterator iterator = listeners.iterator();
             while (iterator.hasNext()) {
-                System.out.println("LinkedHashSet:" + listeners.size());
+                //System.out.println("LinkedHashSet:" + listeners.size());
                 MessageListener listener = (MessageListener) iterator.next();
                 listener.handler(messageEvent);
             }

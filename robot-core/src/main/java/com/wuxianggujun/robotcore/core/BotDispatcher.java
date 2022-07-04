@@ -8,6 +8,8 @@ import com.wuxianggujun.robotcore.listener.MessageEventContext;
 import com.wuxianggujun.robotcore.listener.message.GroupMessageEvent;
 import com.wuxianggujun.robotcore.listener.message.MessageEvent;
 import com.wuxianggujun.robotcore.listener.message.PrivateMessageEvent;
+import com.wuxianggujun.robotcore.reflections.BotRepository;
+import org.reflections.scanners.Scanners;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -71,9 +73,13 @@ public class BotDispatcher {
                 JsonNode self_id = jsonNode.get("self_id");
 
 
-                //BotRepository botRepository = new BotRepository("com.wuxianggujun", Scanners.FieldsAnnotated);
+                BotRepository botRepository = new BotRepository("com.wuxianggujun", Scanners.FieldsAnnotated);
 
-                //botRepository.getBotSubTypes();
+                try {
+                    botRepository.getBotField();
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
 
                 //解析JSON判断是不是message消息还是心跳包
                 if (postType.asText().equals("message")) {

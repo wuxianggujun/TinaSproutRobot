@@ -5,6 +5,6 @@ import java.lang.annotation.*;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 @Documented
-public @interface Bot {
+public @interface BotAnnotation {
     String value() default "";
 }
