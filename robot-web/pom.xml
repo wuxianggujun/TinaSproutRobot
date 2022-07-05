@@ -33,6 +33,12 @@
         </dependency>
 
         <dependency>
+            <groupId>com.wuxianggujun</groupId>
+            <artifactId>robot-annotations</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
+
+        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
@@ -109,30 +115,15 @@
 
     <build>
         <plugins>
-
             <plugin>
                 <groupId>org.springframework.boot</groupId>
                 <artifactId>spring-boot-maven-plugin</artifactId>
                 <version>2.7.0</version>
+                <configuration>
+                    <mainClass>com.wuxianggujun.RobotWebApplication</mainClass>
+                </configuration>
             </plugin>
         </plugins>
-        <resources>
-            <resource>
-                <directory>src/main/java</directory>
-                <includes>
-                    <include>**/*.xml</include>
-                </includes>
-                <filtering>false</filtering>
-            </resource>
-
-            <resource>
-                <!--下方resources的文件夹名字要和自己项目的文件夹名称一致-->
-                <directory>src/main/resources</directory>
-                <includes>
-                    <include>**/*</include>
-                </includes>
-            </resource>
-        </resources>
     </build>
 
 </project>
