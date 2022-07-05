@@ -49,15 +49,16 @@
 
             <dependency>
                 <groupId>com.wuxianggujun</groupId>
+                <artifactId>robot-annotations</artifactId>
+                <version>0.0.1-SNAPSHOT</version>
+            </dependency>
+            <!--打包模块有放到最后-->
+            <dependency>
+                <groupId>com.wuxianggujun</groupId>
                 <artifactId>robot-web</artifactId>
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.wuxianggujun</groupId>
-                <artifactId>robot-annotations</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
         </dependencies>
 
     </dependencyManagement>
@@ -81,7 +82,8 @@
                     <source>8</source>
                     <target>8</target>
                     <annotationProcessors>
-                        <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor</annotationProcessor>
+                        <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
+                        </annotationProcessor>
                     </annotationProcessors>
                 </configuration>
             </plugin>
