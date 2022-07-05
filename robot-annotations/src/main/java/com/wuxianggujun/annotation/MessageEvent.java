@@ -1,6 +1,6 @@
-package com.wuxianggujun.robotcore.annotation;
+package com.wuxianggujun.annotation;
 
-import com.wuxianggujun.robotcore.enums.MessageEventType;
+import com.wuxianggujun.annotation.enums.MessageEventType;
 
 import java.lang.annotation.*;
 

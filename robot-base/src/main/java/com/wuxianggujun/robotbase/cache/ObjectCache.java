@@ -39,16 +39,17 @@ public class ObjectCache {
         return cache;
     }
 
-    public Object getCache(String key) {
+    public Object getCache(Class<?> clazz) {
+        String key = clazz.getName();
         if (cache.containsKey(key)) {
             return cache.get(key);
         }
         return null;
     }
 
-    public void putCache(String key, Object value) {
-        System.out.println("Key:" + key + " | " + "value:" + value);
-        cache.put(key, value);
+    public void putCache(Class<?> clazz, Object value) {
+        System.out.println("Key:" + clazz + " | " + "value:" + value);
+        cache.put(clazz.getName(), value);
     }
 
 

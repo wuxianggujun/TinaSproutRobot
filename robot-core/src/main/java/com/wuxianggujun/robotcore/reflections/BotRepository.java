@@ -101,6 +101,7 @@ public class BotRepository {
         Set<Field> botFieldSet = reflections.getFieldsAnnotatedWith(BotAnnotation.class);
 
         for (Field field : botFieldSet) {
+            BotAnnotation botAnnotation = field.getAnnotation(BotAnnotation.class);
             //System.out.println(field);
             //如果指定类型的注释存在于此元素上,否则返回false。这种方法的设计主要是为了方便访问标记注释.
             if (field.isAnnotationPresent(BotAnnotation.class)) {
@@ -116,9 +117,10 @@ public class BotRepository {
                     bot.setName("无相");
                     //接下来要获取注解所在的类
                     //返回表示声明此对象所表示的字段的类或接口的对象
+
                     field.get(object);
                     field.set(object, bot);
-                    ObjectCache.getInstance().putCache(field.getDeclaringClass().getName(), object);
+                    ObjectCache.getInstance().putCache(field.getDeclaringClass(), object);
                     System.out.println(object);
                 }
 
