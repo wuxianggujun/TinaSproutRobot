@@ -48,11 +48,6 @@
                 <version>0.0.1-SNAPSHOT</version>
             </dependency>
 
-            <dependency>
-                <groupId>com.wuxianggujun</groupId>
-                <artifactId>robot-annotations</artifactId>
-                <version>0.0.1-SNAPSHOT</version>
-            </dependency>
             <!--打包模块有放到最后-->
             <dependency>
                 <groupId>com.wuxianggujun</groupId>

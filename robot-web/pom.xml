@@ -121,7 +121,7 @@
                 <annotationProcessors>
                     <!--Disable annotation processing for ourselves，关闭注解处理器-->
                     <!--                        <compilerArgument>-proc:none</compilerArgument>-->
-                    <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
+                    <annotationProcessor>annotation.processor.MessageEventProcessor
                     </annotationProcessor>
                 </annotationProcessors>
             </configuration>

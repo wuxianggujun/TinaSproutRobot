@@ -1,6 +1,6 @@
-package com.wuxianggujun.annotation;
+package annotation;
 
-import com.wuxianggujun.annotation.enums.MessageEventType;
+import annotation.enums.MessageEventType;
 
 import java.lang.annotation.*;
 

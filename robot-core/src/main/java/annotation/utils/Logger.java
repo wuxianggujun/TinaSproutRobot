@@ -1,4 +1,4 @@
-package com.wuxianggujun.annotation.utils;
+package annotation.utils;
 
 import javax.annotation.processing.Messager;
 import javax.tools.Diagnostic;

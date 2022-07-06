@@ -1,7 +1,7 @@
 package com.wuxianggujun.robotweb.event;
 
-import com.wuxianggujun.annotation.MessageEvent;
-import com.wuxianggujun.annotation.enums.MessageEventType;
+import annotation.MessageEvent;
+import annotation.enums.MessageEventType;
 import com.wuxianggujun.robotbase.cache.ObjectCache;
 import com.wuxianggujun.robotcore.annotation.BotAnnotation;
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;

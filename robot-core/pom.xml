@@ -39,12 +39,20 @@
             <artifactId>robot-base</artifactId>
         </dependency>
 
+
+        <!--APT自动添加配置库-->
         <dependency>
-            <groupId>com.wuxianggujun</groupId>
-            <artifactId>robot-annotations</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service</artifactId>
+            <version>1.0.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>com.google.auto.service</groupId>
+            <artifactId>auto-service-annotations</artifactId>
+            <version>1.0.1</version>
+            <scope>compile</scope>
+        </dependency>
 
         <!--netty-->
         <dependency>

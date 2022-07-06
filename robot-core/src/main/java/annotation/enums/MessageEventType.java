@@ -1,4 +1,4 @@
-package com.wuxianggujun.annotation.enums;
+package annotation.enums;
 
 /**
  * 定义消息枚举给注解用的

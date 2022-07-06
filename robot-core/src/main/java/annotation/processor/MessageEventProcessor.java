@@ -1,8 +1,8 @@
-package com.wuxianggujun.annotation.processor;
+package annotation.processor;
 
 import com.google.auto.service.AutoService;
-import com.wuxianggujun.annotation.MessageEvent;
-import com.wuxianggujun.annotation.utils.Logger;
+import annotation.MessageEvent;
+import annotation.utils.Logger;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
