@@ -39,6 +39,12 @@
             <artifactId>robot-base</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>com.squareup</groupId>
+            <artifactId>javapoet</artifactId>
+            <version>1.13.0</version>
+        </dependency>
+
 
         <!--APT自动添加配置库-->
         <dependency>

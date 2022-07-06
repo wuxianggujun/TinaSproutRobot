@@ -1,20 +1,25 @@
 package annotation.processor;
 
 import annotation.MessageEvent;
-import annotation.enums.MessageEventType;
 import annotation.utils.Logger;
 import com.google.auto.service.AutoService;
+import com.squareup.javapoet.JavaFile;
+import com.squareup.javapoet.MethodSpec;
+import com.squareup.javapoet.TypeSpec;
+import com.wuxianggujun.robotcore.listener.MessageListener;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
+import javax.lang.model.element.ElementKind;
+import javax.lang.model.element.Modifier;
 import javax.lang.model.element.TypeElement;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import javax.tools.JavaFileObject;
 import java.io.IOException;
-import java.io.Writer;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,54 +50,100 @@ public class MessageEventProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        Set<? extends Element> annotationTypeElements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
-        for (Element element : annotationTypeElements) {
-            logger.i("Element:" + element.toString());
-            analysisAnnotation(element);
+        //获取有注解的元素
+        for (Element annotationElement : roundEnv.getElementsAnnotatedWith(MessageEvent.class)) {
+            if (annotationElement.getKind() != ElementKind.CLASS) {
+                logger.e("Only classes can be annotated with MessageEvent.class");
+                return true;
+            }
+            analysisAnnotation(annotationElement);
         }
+        return false;
+    }
 
-        //创建动态代码，实际上就是创建一个String, 写入到文件里
-        //然后文件会被解释为.class文件
+    private void analysisAnnotation(Element annotationElement) {
+        String messageType = annotationElement.getAnnotation(MessageEvent.class).value().getMessageType();
+        MethodSpec addEventListenerMethod = MethodSpec.methodBuilder("addEventListener")
+                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                .returns(void.class)
+                .build();
 
-        StringBuilder builder = new StringBuilder()
-                .append("package com.zhangjian.annotationprocessor.generated;\n\n")
-                .append("public class GeneratedClass {\n\n")
-                .append("\tpublic String getMessage() {\n")
-                .append("\t\treturn \"");
+        TypeSpec registerTheEventListener = TypeSpec.classBuilder("RegisterEventListener")
+                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+                .addMethod(addEventListenerMethod)
+                .build();
+        logger.i(messageType);
+        JavaFile javaFile = JavaFile.builder("com.wuxianggujun.event", registerTheEventListener)
+                .build();
 
-        //获取所有被CustomAnnotation修饰的代码元素
-        for (Element element : roundEnv.getElementsAnnotatedWith(MessageEvent.class)) {
-            String objectType = element.getSimpleName().toString();
-            builder.append(objectType).append(" exists!\\n");
-        }
-
-        builder.append("\";\n")
-                .append("\t}\n")
-                .append("}\n");
-
-        //将String写入并生成.class文件
         try {
-            JavaFileObject source = processingEnv.getFiler().createSourceFile(
-                    "com.zhangjian.annotationprocessor.generated.GeneratedClass");
-
-            Writer writer = source.openWriter();
-            writer.write(builder.toString());
-            writer.flush();
-            writer.close();
+            javaFile.writeTo(filer);
         } catch (IOException e) {
-            //
+            e.printStackTrace();
         }
-        return true;
     }
 
-    private void analysisAnnotation(Element element) {
-        MessageEvent messageEvent = element.getAnnotation(MessageEvent.class);
-        MessageEventType messageEventType = messageEvent.value();
-        logger.i(messageEventType.getMessageType());
+// @Override
+//    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
+//        if (annotations.isEmpty())
+//            return false;
+//        for (TypeElement typeElement : annotations) {
+//            logger.i("SupportedAnnotationTypes : " + typeElement.getQualifiedName());
+//
+//            //判断element是view的子类或者接口
+//            TypeMirror typeMirror = typeElement.asType();
+//            if (typeMirror.getKind() == TypeKind.TYPEVAR){
+//                TypeVariable typeVariable = (TypeVariable) typeMirror;
+//                typeMirror = typeVariable.getUpperBound();
+//
+//            }
+//            Name qualifiedName = typeElement.getQualifiedName();
+//            Name simpleName = typeElement.getSimpleName();
+//            logger.i(qualifiedName);
+//            logger.i(simpleName);
+//
+//            // 生成 public static void main(String[] args) 函数
+//            MethodSpec main = MethodSpec.methodBuilder("main")
+//                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+//                    .returns(void.class)
+//                    .addParameter(String[].class, "args")
+//                    .addStatement("$T.out.println($S)", System.class, "Hello, JavaPoet!")
+//                    .build();
+//
+//            // 指定 public final class HelloWorld 类
+//            TypeSpec registerTheEventListener = TypeSpec.classBuilder("RegisterEventListenerMap")
+//                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
+//                    .addMethod(main)
+//                    .build();
+//
+//            // 正式在 "com.example.helloworld" 包名下创建 HelloWorld 类
+//            JavaFile javaFile = JavaFile.builder("com.wuxianggujun.robotcore.event", registerTheEventListener)
+//                    .build();
+//
+//            try {
+//                javaFile.writeTo(filer);
+//            } catch (IOException e) {
+//                e.printStackTrace();
+//            }
+//        }
+//
+//        return true;
+//    }
+//
 
+    private boolean isView(TypeMirror type) {
+        List<? extends TypeMirror> supers = typeUtils.directSupertypes(type);
+        if (supers.size() == 0) {
+            return false;
+        }
+        for (TypeMirror superType : supers) {
+            logger.i(superType.toString());
+            if (superType.toString().equals("com.wuxianggujun.robotcore.listener.impl.GroupMessageListener") || isView(superType)) {
+                return true;
+            }
+        }
+        return false;
     }
-
-
 
 
     @Override
