@@ -33,7 +33,7 @@ public class MessageEventProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Hello world!");
+        //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Hello world!");
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
 
         logger.i("Hello world!");

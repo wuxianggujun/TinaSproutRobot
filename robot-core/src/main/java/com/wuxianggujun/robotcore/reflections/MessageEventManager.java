@@ -1,5 +1,7 @@
 package com.wuxianggujun.robotcore.reflections;
 
+import com.wuxianggujun.annotation.MessageEvent;
+import com.wuxianggujun.annotation.enums.MessageEventType;
 import com.wuxianggujun.robotcore.listener.MessageEventContext;
 import com.wuxianggujun.robotcore.listener.MessageListener;
 import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
