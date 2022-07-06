@@ -112,20 +112,20 @@
         <plugins>
 
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                    <annotationProcessors>
-                        <!--Disable annotation processing for ourselves，关闭注解处理器-->
-                        <!--                        <compilerArgument>-proc:none</compilerArgument>-->
-                        <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
-                        </annotationProcessor>
-                    </annotationProcessors>
-                </configuration>
-            </plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-compiler-plugin</artifactId>
+            <version>3.8.0</version>
+            <configuration>
+                <source>${java.version}</source>
+                <target>${java.version}</target>
+                <annotationProcessors>
+                    <!--Disable annotation processing for ourselves，关闭注解处理器-->
+                    <!--                        <compilerArgument>-proc:none</compilerArgument>-->
+                    <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
+                    </annotationProcessor>
+                </annotationProcessors>
+            </configuration>
+        </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>

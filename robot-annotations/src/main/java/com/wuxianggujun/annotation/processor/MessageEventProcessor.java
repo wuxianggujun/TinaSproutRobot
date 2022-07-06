@@ -18,7 +18,7 @@ import java.util.Set;
 
 @SupportedAnnotationTypes({"com.wuxianggujun.annotation.MessageEvent"})
 @SupportedSourceVersion(SourceVersion.RELEASE_8)
-@AutoService(MessageEventProcessor.class)
+@AutoService(Processor.class)
 public class MessageEventProcessor extends AbstractProcessor {
 
     private Filer filer;
