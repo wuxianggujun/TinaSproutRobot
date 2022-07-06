@@ -57,25 +57,25 @@
 
     </dependencies>
 
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.springframework.boot</groupId>
-                <artifactId>spring-boot-maven-plugin</artifactId>
-                <version>2.7.0</version>
-                <!--解决maven打包插件不能依赖问题-->
-                <!--被依赖的模块都需要配置-->
-                <!--如果不配置下面两个配置，被依赖的模块引入不到需要的模块-->
-                <executions>
-                    <execution>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <classifier>execute</classifier>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+<!--    <build>-->
+<!--        <plugins>-->
+<!--            <plugin>-->
+<!--                <groupId>org.springframework.boot</groupId>-->
+<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
+<!--                <version>2.7.0</version>-->
+<!--                &lt;!&ndash;解决maven打包插件不能依赖问题&ndash;&gt;-->
+<!--                &lt;!&ndash;被依赖的模块都需要配置&ndash;&gt;-->
+<!--                &lt;!&ndash;如果不配置下面两个配置，被依赖的模块引入不到需要的模块&ndash;&gt;-->
+<!--                <executions>-->
+<!--                    <execution>-->
+<!--                        <phase>none</phase>-->
+<!--                    </execution>-->
+<!--                </executions>-->
+<!--                <configuration>-->
+<!--                    <classifier>execute</classifier>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+<!--        </plugins>-->
+<!--    </build>-->
 
 </project>

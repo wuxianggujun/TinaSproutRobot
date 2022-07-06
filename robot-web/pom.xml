@@ -33,12 +33,6 @@
         </dependency>
 
         <dependency>
-            <groupId>com.wuxianggujun</groupId>
-            <artifactId>robot-annotations</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-
-        <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter</artifactId>
         </dependency>
@@ -113,8 +107,33 @@
         </dependencies>
     </dependencyManagement>
 
+
     <build>
         <plugins>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.8.0</version>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                    <annotationProcessors>
+                        <!--Disable annotation processing for ourselves，关闭注解处理器-->
+                        <!--                        <compilerArgument>-proc:none</compilerArgument>-->
+                        <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
+                        </annotationProcessor>
+                    </annotationProcessors>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>    <!--默认关掉单元测试 -->
+                </configuration>
+            </plugin>
 
             <plugin>
                 <groupId>org.springframework.boot</groupId>
@@ -124,9 +143,16 @@
                     <!-- 如果没有该配置devtools不会生效-->
                     <fork>true</fork>
                     <mainClass>com.wuxianggujun.RobotWebApplication</mainClass>
+                    <layout>ZIP</layout>
                 </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>repackage</goal><!--可以把依赖的包都打包到生成的Jar包中-->
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
-
         </plugins>
     </build>
 
