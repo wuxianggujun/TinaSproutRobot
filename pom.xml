@@ -13,6 +13,7 @@
     <artifactId>TinaSproutRobot</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
+    <!--管理模块-->
     <modules>
         <module>robot-base</module>
         <module>robot-core</module>
@@ -63,43 +64,33 @@
 
     </dependencyManagement>
 
+    <!--指定使用maven 打包-->
     <build>
         <plugins>
-<!--            <plugin>-->
-<!--                <groupId>org.springframework.boot</groupId>-->
-<!--                <artifactId>spring-boot-maven-plugin</artifactId>-->
-<!--                <version>2.7.0</version>-->
-<!--                <configuration>-->
-<!--                    <mainClass>com.wuxianggujun.RobotWebApplication</mainClass>-->
-<!--                </configuration>-->
-<!--            </plugin>-->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.0</version>
                 <configuration>
-                    <source>8</source>
-                    <target>8</target>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
                     <annotationProcessors>
+                        <!--Disable annotation processing for ourselves，关闭注解处理器-->
+                        <compilerArgument>-proc:none</compilerArgument>
                         <annotationProcessor>com.wuxianggujun.annotation.processor.MessageEventProcessor
                         </annotationProcessor>
                     </annotationProcessors>
                 </configuration>
             </plugin>
-
-            <!--            <plugin>-->
-            <!--                <groupId>org.apache.maven.plugins</groupId>-->
-            <!--                <artifactId>maven-compiler-plugin</artifactId>-->
-            <!--                <version>3.8.0</version>-->
-            <!--                <configuration>-->
-            <!--                    &lt;!&ndash;Disable annotation processing for ourselves，关闭注解处理器&ndash;&gt;-->
-            <!--                    <compilerArgument>-proc:none</compilerArgument>-->
-            <!--                </configuration>-->
-            <!--            </plugin>-->
-
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.19.1</version>
+                <configuration>
+                    <skipTests>true</skipTests>    <!--默认关掉单元测试 -->
+                </configuration>
+            </plugin>
         </plugins>
-
-
     </build>
 
 </project>
