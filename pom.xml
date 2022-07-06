@@ -18,7 +18,6 @@
         <module>robot-base</module>
         <module>robot-core</module>
         <module>robot-web</module>
-        <module>robot-annotations</module>
     </modules>
     <name>TinaSproutRobot</name>
     <description>TinaSproutRobot</description>

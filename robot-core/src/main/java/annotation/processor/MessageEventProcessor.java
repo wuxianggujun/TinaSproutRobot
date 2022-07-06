@@ -1,16 +1,19 @@
 package annotation.processor;
 
 import annotation.MessageEvent;
+import annotation.enums.MessageEventType;
 import annotation.utils.Logger;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
-import javax.lang.model.element.PackageElement;
 import javax.lang.model.element.TypeElement;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
+import javax.tools.JavaFileObject;
+import java.io.IOException;
+import java.io.Writer;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -37,32 +40,60 @@ public class MessageEventProcessor extends AbstractProcessor {
         filer = processingEnv.getFiler();
         typeUtils = processingEnv.getTypeUtils();
         elementUtils = processingEnv.getElementUtils();
+        logger.i("Init ......");
     }
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        for (TypeElement typeElement : annotations) {
-            for (Element e : roundEnv.getElementsAnnotatedWith(typeElement)) {
-
-                //获取注解
-                MessageEvent messageEvent = e.getAnnotation(MessageEvent.class);
-
-                //元素名称并将首字母大写
-                String name = e.getSimpleName().toString();
-                //包裹注解元素的元素, 也就是其父元素, 比如注解了成员变量或者成员函数, 其上层就是该类
-                Element enclosingElement = e.getEnclosingElement();
-                //获取父元素的全类名,用来生成报名
-                String enclosingQualifiedname;
-                if (enclosingElement instanceof PackageElement) {
-                    enclosingQualifiedname = ((PackageElement) enclosingElement).getQualifiedName().toString();
-                } else {
-                    enclosingQualifiedname = ((TypeElement) enclosingElement).getQualifiedName().toString();
-                }
-                logger.i(enclosingQualifiedname);
-            }
+        Set<? extends Element> annotationTypeElements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
+        for (Element element : annotationTypeElements) {
+            logger.i("Element:" + element.toString());
+            analysisAnnotation(element);
         }
-        return false;
+
+        //创建动态代码，实际上就是创建一个String, 写入到文件里
+        //然后文件会被解释为.class文件
+
+        StringBuilder builder = new StringBuilder()
+                .append("package com.zhangjian.annotationprocessor.generated;\n\n")
+                .append("public class GeneratedClass {\n\n")
+                .append("\tpublic String getMessage() {\n")
+                .append("\t\treturn \"");
+
+        //获取所有被CustomAnnotation修饰的代码元素
+        for (Element element : roundEnv.getElementsAnnotatedWith(MessageEvent.class)) {
+            String objectType = element.getSimpleName().toString();
+            builder.append(objectType).append(" exists!\\n");
+        }
+
+        builder.append("\";\n")
+                .append("\t}\n")
+                .append("}\n");
+
+        //将String写入并生成.class文件
+        try {
+            JavaFileObject source = processingEnv.getFiler().createSourceFile(
+                    "com.zhangjian.annotationprocessor.generated.GeneratedClass");
+
+            Writer writer = source.openWriter();
+            writer.write(builder.toString());
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            //
+        }
+        return true;
     }
+
+    private void analysisAnnotation(Element element) {
+        MessageEvent messageEvent = element.getAnnotation(MessageEvent.class);
+        MessageEventType messageEventType = messageEvent.value();
+        logger.i(messageEventType.getMessageType());
+
+    }
+
+
+
 
     @Override
     public Set<String> getSupportedAnnotationTypes() {
