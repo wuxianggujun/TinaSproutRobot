@@ -36,15 +36,15 @@ public class MessageEventProcessor extends AbstractProcessor {
         //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Hello world!");
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
 
-        logger.i("Hello world!");
-        StringBuilder stringBuilder = new StringBuilder();
+        logger.i("-----------Hello world!------------");
+        //StringBuilder stringBuilder = new StringBuilder();
 
         for (Element element : elements) {
             TypeElement typeElement = (TypeElement) element;
             System.out.println("APt:" + typeElement.getSuperclass());
-            stringBuilder.append(typeElement.getSuperclass());
+            //stringBuilder.append(typeElement.getSuperclass());
         }
-        logger.i(stringBuilder.toString());
+        //logger.i(stringBuilder.toString());
         return false;
     }
 
