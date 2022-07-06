@@ -8,7 +8,6 @@ import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.Element;
 import javax.lang.model.element.TypeElement;
-import javax.tools.Diagnostic;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -33,18 +32,13 @@ public class MessageEventProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-        //processingEnv.getMessager().printMessage(Diagnostic.Kind.NOTE, "Hello world!");
         Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
-
         logger.i("-----------Hello world!------------");
-        //StringBuilder stringBuilder = new StringBuilder();
 
         for (Element element : elements) {
             TypeElement typeElement = (TypeElement) element;
-            System.out.println("APt:" + typeElement.getSuperclass());
-            //stringBuilder.append(typeElement.getSuperclass());
+            logger.i(typeElement.getSimpleName().toString());
         }
-        //logger.i(stringBuilder.toString());
         return false;
     }
 
