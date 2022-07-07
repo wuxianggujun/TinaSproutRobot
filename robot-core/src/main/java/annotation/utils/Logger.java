@@ -1,6 +1,7 @@
 package annotation.utils;
 
 import javax.annotation.processing.Messager;
+import javax.lang.model.element.Element;
 import javax.tools.Diagnostic;
 
 public class Logger {
@@ -25,6 +26,13 @@ public class Logger {
 
     public void e(Throwable error) {
         messager.printMessage(Diagnostic.Kind.ERROR, "Catch Exception : [" + error.getMessage() + "]\n" + loadStackTrace(error));
+    }
+
+    public void e(Element e, String msg, Object... args) {
+        messager.printMessage(
+                Diagnostic.Kind.ERROR,
+                String.format(msg, args),
+                e);
     }
 
 
