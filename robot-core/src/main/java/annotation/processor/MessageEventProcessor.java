@@ -3,17 +3,13 @@ package annotation.processor;
 import annotation.MessageEvent;
 import annotation.utils.Logger;
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.squareup.javapoet.*;
 import com.wuxianggujun.robotcore.listener.MessageListener;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.Modifier;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
+import javax.lang.model.type.DeclaredType;
 import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
@@ -52,20 +48,65 @@ public class MessageEventProcessor extends AbstractProcessor {
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         //获取有注解的元素
         for (Element annotationElement : roundEnv.getElementsAnnotatedWith(MessageEvent.class)) {
-            if (annotationElement.getKind() != ElementKind.CLASS) {
+            if (annotationElement.getKind() != ElementKind.CLASS && !annotationElement.getKind().isClass()) {
                 logger.e("Only classes can be annotated with MessageEvent.class");
                 return true;
             }
-            analysisAnnotation(annotationElement);
+            // 类节点之上，就是包节点
+            String packageName = elementUtils.getPackageOf(annotationElement).getQualifiedName().toString();
+            logger.i(packageName);
+            // 获取简单类名
+            Name className = annotationElement.getSimpleName();
+            logger.i("被注解的类：" + className);
+            DeclaredType declaredType = null;
+            TypeMirror typeMirror = annotationElement.asType();
+            if (typeMirror instanceof DeclaredType) {
+                //表示声明的类型，类类型或接口类型。
+                declaredType = (DeclaredType) annotationElement.asType();
+            } else {
+                logger.e("Bad implementation type for" + typeMirror);
+            }
+            ClassName eventListener = ClassName.get(MessageListener.class);
+            ClassName childEventListener = (ClassName) ClassName.get(declaredType);
+            logger.i("ClassName:" + eventListener.simpleName());
+            ClassName list = ClassName.get("java.util", "List");
+            ClassName arrayList = ClassName.get("java.util", "ArrayList");
+            TypeName listOfBot = ParameterizedTypeName.get(list, eventListener);
+
+            MethodSpec methodSpec = MethodSpec.methodBuilder("addEventListener")
+                    .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
+                    .addStatement("$T result = new $T<>()", listOfBot, arrayList)
+                    .addStatement("result.add(($T)new $T())", eventListener, childEventListener)
+                    .build();
+
+            TypeSpec typeSpec = TypeSpec.classBuilder("RegisterEventListener")
+                    .addModifiers(Modifier.PUBLIC)
+                    .addMethod(methodSpec)
+                    .build();
+
+            JavaFile javaFile = JavaFile.builder(packageName, typeSpec).build();
+            try {
+                javaFile.writeTo(filer);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
         return false;
     }
 
     private void analysisAnnotation(Element annotationElement) {
+        ClassName eventListener = ClassName.get("com.wuxianggujun.robotcore.core.bot", "Bot");
+        ClassName list = ClassName.get("java.util", "List");
+        ClassName arrayList = ClassName.get("java.util", "ArrayList");
+        TypeName listOfBot = ParameterizedTypeName.get(list, eventListener);
+
         String messageType = annotationElement.getAnnotation(MessageEvent.class).value().getMessageType();
         MethodSpec addEventListenerMethod = MethodSpec.methodBuilder("addEventListener")
+                .returns(listOfBot)
+                .addStatement("$T result = new $T<>()", listOfBot, arrayList)
+                .addStatement("result.add(new $T())", eventListener)
                 .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .returns(void.class)
+                .addStatement("return result")
                 .build();
 
         TypeSpec registerTheEventListener = TypeSpec.classBuilder("RegisterEventListener")
@@ -82,6 +123,7 @@ public class MessageEventProcessor extends AbstractProcessor {
             e.printStackTrace();
         }
     }
+
 
 // @Override
 //    public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
