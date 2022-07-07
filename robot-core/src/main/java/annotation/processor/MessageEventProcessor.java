@@ -1,18 +1,16 @@
 package annotation.processor;
 
 import annotation.MessageEvent;
-import annotation.enums.MessageEventType;
 import annotation.utils.Logger;
 import com.google.auto.service.AutoService;
 
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
-import javax.lang.model.element.Element;
-import javax.lang.model.element.ElementKind;
-import javax.lang.model.element.TypeElement;
+import javax.lang.model.element.*;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Set;
 
 /**
  * 使用APT技术处理MessageEvent注解，减少反射使用提高框架效率
@@ -29,8 +27,6 @@ public class MessageEventProcessor extends AbstractProcessor {
     private Types typeUtils;
 
     private Elements elementUtils;
-
-    private Map<String, LinkedHashSet<Element>> annotationClass = new LinkedHashMap<>();
 
 
     @Override
@@ -54,23 +50,80 @@ public class MessageEventProcessor extends AbstractProcessor {
                     logger.e(annotationElement, "Only classes can be annotated with @%s", MessageEvent.class.getSimpleName());
                     return true;//Exit processing
                 }
-                MessageEvent messageEvent = annotationElement.getAnnotation(MessageEvent.class);
-                if (messageEvent != null) {
-                    if (messageEvent.value().equals(MessageEventType.GROUP) || messageEvent.value().equals(MessageEventType.PRIVATE)) {
-                        LinkedHashSet<Element> groupList = annotationClass.get(messageEvent.value().getMessageType());
-                        if (groupList == null) {
-                            groupList = new LinkedHashSet<Element>();
-                        }
-                        groupList.add(annotationElement);
-                        logger.i(Arrays.toString(groupList.toArray()));
-                        annotationClass.put(messageEvent.value().getMessageType(), groupList);
-                    }
+                TypeElement typeElement = (TypeElement) annotationElement;
+                MessageEventClass messageEventClass = new MessageEventClass(typeElement);
+                if (!isValidClass(messageEventClass)) {
+                    return true;
                 }
+
                 logger.i(annotationElement.getSimpleName());
             }
 
 
         }
+        return false;
+    }
+
+    private boolean isValidClass(MessageEventClass item) {
+        TypeElement classTypeElement = item.getTypeElement();
+        // // Cast to TypeElement, has more type specific methods
+        if (!classTypeElement.getModifiers().contains(Modifier.PUBLIC)) {
+            logger.e(classTypeElement, "The class %s is not public.", classTypeElement.getQualifiedName().toString());
+            return false;
+        }
+        // Check if it's an abstract class
+        if (classTypeElement.getModifiers().contains(Modifier.ABSTRACT)) {
+            logger.e(classTypeElement, "The class %s is abstract. You can't annotate abstract classes with @%",
+                    classTypeElement.getQualifiedName().toString(), MessageEvent.class.getSimpleName());
+            return false;
+        }
+        TypeElement superClassElement = elementUtils.getTypeElement(item.getQualifiedSuperClassName());
+        if (superClassElement.getKind() == ElementKind.INTERFACE) {
+            //检测有没有实现接口
+            if (!classTypeElement.getInterfaces().contains(superClassElement.asType())) {
+                logger.e(classTypeElement, "The class %s annotated with @%s must implement the interface %s",
+                        classTypeElement.getQualifiedName().toString(), MessageEvent.class.getSimpleName(),
+                        item.getQualifiedSuperClassName());
+                return false;
+            }
+        }
+//     else {
+//            // Check subclassing
+//            TypeElement currentClass = classTypeElement;
+//            while (true) {
+//                TypeMirror superClassType = currentClass.getSuperclass();
+//
+//                if (superClassType.getKind() == TypeKind.NONE) {
+//                    // Basis class (java.lang.Object) reached, so exit
+//                    logger.e(classTypeElement, "The class %s annotated with @%s must inherit from %s",
+//                            classTypeElement.getQualifiedName().toString(), MessageEvent.class.getSimpleName(),
+//                            item.getQualifiedSuperClassName());
+//                    return false;
+//                }
+//
+//                if (superClassType.toString().equals(item.getQualifiedSuperClassName())) {
+//                    // Required super class found
+//                    break;
+//                }
+//
+//                // Moving up in inheritance tree
+//                currentClass = (TypeElement) typeUtils.asElement(superClassType);
+//            }
+//        }
+        // 检查是否给出了一个空的公共构造函数
+        for (Element enclosed : classTypeElement.getEnclosedElements()) {
+            if (enclosed.getKind() == ElementKind.CONSTRUCTOR) {
+                ExecutableElement constructorElement = (ExecutableElement) enclosed;
+                if (constructorElement.getParameters().size() == 0 && constructorElement.getModifiers()
+                        .contains(Modifier.PUBLIC)) {
+                    // Found an empty constructor
+                    return true;
+                }
+            }
+        }
+        // No empty constructor found
+        logger.e(classTypeElement, "The class %s must provide an public empty default constructor",
+                classTypeElement.getQualifiedName().toString());
         return false;
     }
 
