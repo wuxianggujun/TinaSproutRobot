@@ -7,10 +7,10 @@ import com.google.auto.service.AutoService;
 import javax.annotation.processing.*;
 import javax.lang.model.SourceVersion;
 import javax.lang.model.element.*;
+import javax.lang.model.type.TypeMirror;
 import javax.lang.model.util.Elements;
 import javax.lang.model.util.Types;
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 /**
  * 使用APT技术处理MessageEvent注解，减少反射使用提高框架效率
@@ -28,6 +28,8 @@ public class MessageEventProcessor extends AbstractProcessor {
 
     private Elements elementUtils;
 
+    private Map<String, LinkedHashSet<Element>> annotationClass = new LinkedHashMap<>();
+
 
     @Override
     public synchronized void init(ProcessingEnvironment processingEnv) {
@@ -44,19 +46,30 @@ public class MessageEventProcessor extends AbstractProcessor {
         if (annotations.isEmpty()) return true;
         for (TypeElement element : annotations) {
             Set<? extends Element> annotationElements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
-            // Check if a class has been annotated with @MessageEvent
+            TypeElement typeElement = null;
+            // 检查一个类是否被 @MessageEvent 注释
             for (Element annotationElement : annotationElements) {
                 if (annotationElement.getKind() != ElementKind.CLASS) {
                     logger.e(annotationElement, "Only classes can be annotated with @%s", MessageEvent.class.getSimpleName());
                     return true;//Exit processing
                 }
-                TypeElement typeElement = (TypeElement) annotationElement;
+                if (annotationElement instanceof TypeElement) {
+                    typeElement = (TypeElement) annotationElement;
+                }
+
+                //获取的是包
+                PackageElement packageElement = (PackageElement) typeElement.getEnclosingElement();
+                logger.i(packageElement.getQualifiedName());
                 MessageEventClass messageEventClass = new MessageEventClass(typeElement);
                 if (!isValidClass(messageEventClass)) {
                     return true;
                 }
 
-                logger.i(annotationElement.getSimpleName());
+                TypeMirror typeMirror = annotationElement.asType();
+
+                logger.i(typeElement.getQualifiedName());
+
+
             }
 
 
