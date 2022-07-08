@@ -21,5 +21,13 @@ public enum MessageEventType {
         return messageType;
     }
 
+    public static boolean contains(String messageType) {
+        for (MessageEventType eventType : MessageEventType.values()) {
+            if (eventType.getMessageType().equals(messageType)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
 }

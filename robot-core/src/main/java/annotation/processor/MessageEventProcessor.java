@@ -1,12 +1,10 @@
 package annotation.processor;
 
 import annotation.MessageEvent;
+import annotation.enums.MessageEventType;
 import annotation.utils.Logger;
 import com.google.auto.service.AutoService;
-import com.squareup.javapoet.ClassName;
-import com.squareup.javapoet.JavaFile;
-import com.squareup.javapoet.MethodSpec;
-import com.squareup.javapoet.TypeSpec;
+import com.wuxianggujun.robotcore.listener.impl.GroupMessageListener;
 import com.wuxianggujun.robotcore.listener.impl.PrivateMessageListener;
 
 import javax.annotation.Nullable;
@@ -56,159 +54,94 @@ public class MessageEventProcessor extends AbstractProcessor {
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
         for (TypeElement typeElement : annotations) {
-            TypeSpec.Builder typeBuilder = TypeSpec.classBuilder("RegisterEventListener")
-                    .addModifiers(Modifier.PUBLIC, Modifier.FINAL);
             for (Element element : roundEnv.getElementsAnnotatedWith(MessageEvent.class)) {
                 TypeElement targetClass = null;
                 if (element.getKind() != ElementKind.CLASS)
                     return true;
                 if (element instanceof TypeElement) {
                     targetClass = (TypeElement) element;
-                }
-                String packageName = elementUtils.getPackageOf(targetClass).getQualifiedName().toString();
-                logger.i("包名：" + packageName);
-                String typeClassName = targetClass.getSimpleName().toString();
-                logger.i(typeClassName);
-                ClassName className = ClassName.get(packageName, typeClassName);
-                logger.i(className.canonicalName());
-                MessageEvent messageEvent = targetClass.getAnnotation(MessageEvent.class);
-                JavaFileObject f = null;
-                try {
-                    f = filer.
-                            createSourceFile("com.wuxianggujun.robot.event.RegisterEventListener");
-                    try (Writer w = f.openWriter()) {
-                        PrintWriter pw = new PrintWriter(w);
-                        pw.println("package com.wuxianggujun.robot.event;");
-                        pw.println("import com.wuxianggujun.robotcore.listener.MessageEventContext;");
-                        pw.printf("import %s;\n", className);
-                        pw.println("import org.springframework.stereotype.Repository;");
-                        pw.printf("public final class %s{\n", "RegisterEventListener");
-                        pw.println("public static void register(){");
-                        pw.printf("MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", messageEvent.value().getMessageType(), typeClassName);
-                        pw.println("    }");
-                        pw.println("}");
-                        pw.flush();
+                    //获取接口
+                    List<? extends TypeMirror> list = targetClass.getInterfaces();
+                    for (TypeMirror typeMirror : list) {
+                        MessageEvent messageEvent = targetClass.getAnnotation(MessageEvent.class);
+                        if (messageEvent != null) {
+                            String messageType = messageEvent.value().getMessageType();
+                            String typeMirrorClassName = typeMirror.toString();
+                            //获取注解的值先判断值属不属于类型里面的
+                            if (!MessageEventType.contains(messageType)) {
+                                logger.e("注解的值无效:" + messageType);
+                            }
+                            if (typeMirrorClassName.equals(PrivateMessageListener.class.getCanonicalName()) && messageType.equals(MessageEventType.PRIVATE.getMessageType())) {
+                                LinkedHashSet<Element> elements = annotationClass.get(messageType);
+                                if (elements == null) {
+                                    elements = new LinkedHashSet<>();
+                                }
+                                elements.add(targetClass);
+                                annotationClass.put(messageType, elements);
+                                logger.i("Private:" + typeMirror.toString());
+                            } else if (typeMirrorClassName.equals(GroupMessageListener.class.getCanonicalName()) && messageType.equals(MessageEventType.GROUP.getMessageType())) {
+                                LinkedHashSet<Element> elements = annotationClass.get(messageType);
+                                if (elements == null) {
+                                    elements = new LinkedHashSet<>();
+                                }
+                                elements.add(targetClass);
+                                annotationClass.put(messageType, elements);
+                                logger.i("Group：" + typeMirror.toString());
+                            }
+                        }
                     }
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-
-
-//                //实现接口的类名
-//                ClassName className = ClassName.get(targetClass);
-//                logger.i(className.canonicalName());
-//                List<? extends Element> enclosedElements = targetClass.getEnclosedElements();
-//                for (Element enclosedElement : enclosedElements) {
-//                    logger.i(enclosedElement.getSimpleName());
-//                }
-
-
-                //获取接口
-                List<? extends TypeMirror> list = targetClass.getInterfaces();
-                for (TypeMirror typeMirror : list) {
-                    ClassName typeName = (ClassName) ClassName.get(typeMirror);
-                    logger.i(PrivateMessageListener.class.getCanonicalName());
                 }
 
             }
-
-
+            generateClass();
         }
         return false;
     }
 
-    private void generateClass(Element element) throws Exception {
-        TypeElement targetClass = null;
-        if (element.getKind() != ElementKind.CLASS)
-            return;
-        if (element instanceof TypeElement) {
-            targetClass = (TypeElement) element;
-        }
-        String packageName = elementUtils.getPackageOf(targetClass).getQualifiedName().toString();
-        logger.i("包名：" + packageName);
-        String typeClassName = targetClass.getSimpleName().toString();
-        logger.i(typeClassName);
-        ClassName className = ClassName.get(packageName, typeClassName);
+    private void generateClass() {
 
-        MethodSpec.Builder addMethod = MethodSpec.methodBuilder("addEventListener")
-                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-                .addStatement("com.wuxianggujun.robotcore.listener.MessageEventContext.getInstance().addEventListener($S, new $T())", "group", className)
-                .returns(void.class);
-
-        TypeSpec.Builder classBuilder = TypeSpec.classBuilder("RegisterEventListener")
-                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-
-                .addMethod(addMethod.build());
-
+        JavaFileObject f = null;
         try {
-            JavaFile.builder("com.wuxianggujun.robot.event",
-                            classBuilder.build())
-                    .build()
-                    .writeTo(filer);
-        } catch (Exception e) {
+            f = filer.
+                    createSourceFile("com.wuxianggujun.robot.event.RegisterEventListener");
+            try (Writer w = f.openWriter()) {
+                PrintWriter pw = new PrintWriter(w);
+                pw.println("package com.wuxianggujun.robot.event;");
+                pw.println("import com.wuxianggujun.robotcore.listener.MessageEventContext;");
+
+                // 使用For-Each迭代entries，通过Map.entrySet遍历key和value
+                for (Map.Entry<String, LinkedHashSet<Element>> entry : annotationClass.entrySet()) {
+                    LinkedHashSet<Element> elements = entry.getValue();
+                    for (Element element : elements) {
+                        TypeElement targetClass = (TypeElement) element;
+                        String packageName = elementUtils.getPackageOf(targetClass).getQualifiedName().toString();
+                        String typeClassName = targetClass.getSimpleName().toString();
+                        pw.printf("import %s;\n", packageName + "." + typeClassName);
+                    }
+                    logger.i("Generatingkey = " + entry.getKey() + ", value = " + entry.getValue());
+                }
+
+                pw.printf("public final class %s{\n", "RegisterEventListener");
+                pw.println("public static void register(){");
+                // 使用For-Each迭代entries，通过Map.entrySet遍历key和value
+                for (Map.Entry<String, LinkedHashSet<Element>> entry : annotationClass.entrySet()) {
+                    LinkedHashSet<Element> elements = entry.getValue();
+                    for (Element element : elements) {
+                        TypeElement targetClass = (TypeElement) element;
+                        String typeClassName = targetClass.getSimpleName().toString();
+                        pw.printf("MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", entry.getKey(), typeClassName);
+                    }
+                }
+                pw.println("    }");
+                pw.println("}");
+                pw.flush();
+            }
+        } catch (IOException e) {
             e.printStackTrace();
         }
 
-    }
-//        if (annotations.isEmpty()) return true;
-//        for (TypeElement element : annotations) {
-//            Set<? extends Element> annotationElements = roundEnv.getElementsAnnotatedWith(MessageEvent.class);
-//            TypeElement typeElement = null;
-//            // 检查一个类是否被 @MessageEvent 注释
-//            for (Element annotationElement : annotationElements) {
-//                if (annotationElement.getKind() != ElementKind.CLASS) {
-//                    logger.e(annotationElement, "Only classes can be annotated with @%s", MessageEvent.class.getSimpleName());
-//                    return true;//Exit processing
-//                }
-//                if (annotationElement instanceof TypeElement) {
-//                    typeElement = (TypeElement) annotationElement;
-//                }
-//
-//                //获取的是包
-//                PackageElement packageElement = (PackageElement) typeElement.getEnclosingElement();
-//                logger.i(packageElement.getQualifiedName());
-//                MessageEventClass messageEventClass = new MessageEventClass(typeElement);
-//                if (!isValidClass(messageEventClass)) {
-//                    return true;
-//                }
-//
-//                TypeMirror typeMirror = annotationElement.asType();
-//
-//                logger.i(typeElement.getQualifiedName());
-//
-//
-//            }
-//
-//
-//        }
 
-//    public void generateCode() {
-//        MethodSpec.Builder methodBuilder = MethodSpec.methodBuilder("create" + key.simpleName())
-//                .addModifiers(Modifier.PUBLIC, Modifier.STATIC)
-//                .addParameter(String.class, "type")
-//                .beginControlFlow("switch(type)");
-//        for (ElementInfo elementInfo : input.get(key)) {
-//            methodBuilder
-//                    .addStatement("case $S: return new $T()", elementInfo.tag, elementInfo.className);
-//        }
-//
-//        methodBuilder
-//                .endControlFlow()
-//                .addStatement("throw new RuntimeException(\"not support type\")")
-//                .returns(void.class);
-//        MethodSpec methodSpec = methodBuilder.build();
-//
-//
-//        TypeSpec helloWorld = TypeSpec.classBuilder(key.simpleName() + "Factory")
-//                .addModifiers(Modifier.PUBLIC, Modifier.FINAL)
-//                .addMethod(methodSpec)
-//                .build();
-//        JavaFile javaFile = JavaFile.builder("com.wuxianggujun,robot.event", helloWorld)
-//                .build();
-//
-//        javaFile.writeTo(filer);
-//    }
+    }
 
     private @Nullable TypeElement getSuperClass(TypeElement typeElement) {
         TypeMirror typeMirror = typeElement.getSuperclass();
@@ -218,82 +151,6 @@ public class MessageEventProcessor extends AbstractProcessor {
         return (TypeElement) ((DeclaredType) typeMirror).asElement();
     }
 
-    private void writeBuilderFile(
-            String className, Map<String, String> setterMap)
-            throws IOException {
-
-        String packageName = null;
-        int lastDot = className.lastIndexOf('.');
-        if (lastDot > 0) {
-            packageName = className.substring(0, lastDot);
-        }
-
-        String simpleClassName = className.substring(lastDot + 1);
-        String builderClassName = className + "Builder";
-        String builderSimpleClassName = builderClassName
-                .substring(lastDot + 1);
-
-        JavaFileObject builderFile = processingEnv.getFiler()
-                .createSourceFile(builderClassName);
-
-        try (PrintWriter out = new PrintWriter(builderFile.openWriter())) {
-
-            if (packageName != null) {
-                out.print("package ");
-                out.print(packageName);
-                out.println(";");
-                out.println();
-            }
-
-            out.print("public class ");
-            out.print(builderSimpleClassName);
-            out.println(" {");
-            out.println();
-
-            out.print("    private ");
-            out.print(simpleClassName);
-            out.print(" object = new ");
-            out.print(simpleClassName);
-            out.println("();");
-            out.println();
-
-            out.print("    public ");
-            out.print(simpleClassName);
-            out.println(" build() {");
-            out.println("        return object;");
-            out.println("    }");
-            out.println();
-
-            setterMap.entrySet().forEach(setter -> {
-                String methodName = setter.getKey();
-                String argumentType = setter.getValue();
-
-                out.print("    public ");
-                out.print(builderSimpleClassName);
-                out.print(" ");
-                out.print(methodName);
-
-                out.print("(");
-
-                out.print(argumentType);
-                out.println(" value) {");
-                out.print("        object.");
-                out.print(methodName);
-                out.println("(value);");
-                out.println("        return this;");
-                out.println("    }");
-                out.println();
-            });
-
-            out.println("}");
-        }
-    }
-
-    private void verifyNotAnAnnotation(TypeElement typeElement) {
-        if (typeElement.getKind() == ElementKind.ANNOTATION_TYPE) {
-
-        }
-    }
 
     private boolean isValidClass(MessageEventClass item) {
         TypeElement classTypeElement = item.getTypeElement();
