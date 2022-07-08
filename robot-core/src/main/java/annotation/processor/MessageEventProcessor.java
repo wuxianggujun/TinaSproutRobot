@@ -127,7 +127,7 @@ public class MessageEventProcessor extends AbstractProcessor {
                 pw.println(" * 在编译时找到全部的被注解的类);");
                 pw.println(" * 然后添加到register方法里面");
                 pw.println(" * @author 无相孤君 2022-7-8 10:00");
-                pw.println(" * @deprecated 还不如反射好写，他奶奶滴");
+                pw.println(" * 还不如反射好写，他奶奶滴");
                 DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss");
                 LocalDateTime localDateTime = LocalDateTime.now();
                 String date = df.format(localDateTime);
