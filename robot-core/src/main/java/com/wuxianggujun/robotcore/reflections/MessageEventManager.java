@@ -10,7 +10,6 @@ import org.reflections.Reflections;
 import org.reflections.scanners.Scanners;
 import org.reflections.util.ConfigurationBuilder;
 import org.reflections.util.FilterBuilder;
-import org.springframework.context.annotation.Configuration;
 
 import javax.annotation.PostConstruct;
 import java.lang.reflect.Modifier;
@@ -19,11 +18,12 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 /**
- * 反射获取
+ * 反射获取MessageEvent注解
+ *
+ * @deprecated 该类应该废弃，我替换成了apt来实现注册，使用此类应该将注解改成@Retention(RetentionPolicy.RUNTIME)
  */
-@Configuration
+//@Configuration //取消注释即可跟着springboot启动
 public class MessageEventManager {
-//    private final Map<String, Object> map = new ConcurrentHashMap<>();
 
     //扫描包
     @PostConstruct
