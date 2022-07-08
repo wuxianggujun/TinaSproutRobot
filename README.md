@@ -15,5 +15,8 @@ public class GroupMessageEvent implements GroupMessageListener{
 }
 ```
 如果是私聊信息将接口改成私信接口
+
+# 编译
+要先使用Idea工具类上的构建->重新构建项目之后才可以运行SprigBoot,不然会报错找不到类
 # 延伸阅读
 

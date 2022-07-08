@@ -20,6 +20,8 @@ import javax.tools.JavaFileObject;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.Writer;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 
 /**
@@ -102,8 +104,7 @@ public class MessageEventProcessor extends AbstractProcessor {
 
         JavaFileObject f = null;
         try {
-            f = filer.
-                    createSourceFile("com.wuxianggujun.robot.event.RegisterEventListener");
+            f = filer.createSourceFile("com.wuxianggujun.robot.event.RegisterEventListener");
             try (Writer w = f.openWriter()) {
                 PrintWriter pw = new PrintWriter(w);
                 pw.println("package com.wuxianggujun.robot.event;");
@@ -120,16 +121,28 @@ public class MessageEventProcessor extends AbstractProcessor {
                     }
                     logger.i("Generatingkey = " + entry.getKey() + ", value = " + entry.getValue());
                 }
-
+                pw.println();
+                pw.println("/**");
+                pw.println(" * 这个是使用apt生成的类，");
+                pw.println(" * 在编译时找到全部的被注解的类);");
+                pw.println(" * 然后添加到register方法里面");
+                pw.println(" * @author 无相孤君 2022-7-8 10:00");
+                pw.println(" * @deprecated 还不如反射好写，他奶奶滴");
+                DateTimeFormatter df = DateTimeFormatter.ofPattern("yyyy年MM月dd日 HH:mm:ss");
+                LocalDateTime localDateTime = LocalDateTime.now();
+                String date = df.format(localDateTime);
+                pw.printf(" * @date %s\n", date);
+                pw.println(" */");
+                pw.println();
                 pw.printf("public final class %s{\n", "RegisterEventListener");
-                pw.println("public static void register(){");
+                pw.println("    public static void register() {");
                 // 使用For-Each迭代entries，通过Map.entrySet遍历key和value
                 for (Map.Entry<String, LinkedHashSet<Element>> entry : annotationClass.entrySet()) {
                     LinkedHashSet<Element> elements = entry.getValue();
                     for (Element element : elements) {
                         TypeElement targetClass = (TypeElement) element;
                         String typeClassName = targetClass.getSimpleName().toString();
-                        pw.printf("MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", entry.getKey(), typeClassName);
+                        pw.printf("        MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", entry.getKey(), typeClassName);
                     }
                 }
                 pw.println("    }");
