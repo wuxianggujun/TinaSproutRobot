@@ -15,6 +15,7 @@ public class GroupMessageEvent implements GroupMessageListener {
 
     @Override
     public void handler(com.wuxianggujun.robotcore.listener.message.GroupMessageEvent message) {
+        System.out.println("wc"+message.getMessage());
         Test test = (Test) ObjectCache.getInstance().getCache(Test.class);
         System.out.println(test.getBot().getName());
         System.out.println(test.toString());

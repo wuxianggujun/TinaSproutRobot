@@ -71,6 +71,7 @@ public class MessageEventProcessor extends AbstractProcessor {
                 logger.i(typeClassName);
                 ClassName className = ClassName.get(packageName, typeClassName);
                 logger.i(className.canonicalName());
+                MessageEvent messageEvent = targetClass.getAnnotation(MessageEvent.class);
                 JavaFileObject f = null;
                 try {
                     f = filer.
@@ -83,7 +84,7 @@ public class MessageEventProcessor extends AbstractProcessor {
                         pw.println("import org.springframework.stereotype.Repository;");
                         pw.printf("public final class %s{\n", "RegisterEventListener");
                         pw.println("public static void register(){");
-                        pw.printf("MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", "group", typeClassName);
+                        pw.printf("MessageEventContext.getInstance().addEventListener(\"%s\", new %s());\n", messageEvent.value().getMessageType(), typeClassName);
                         pw.println("    }");
                         pw.println("}");
                         pw.flush();
