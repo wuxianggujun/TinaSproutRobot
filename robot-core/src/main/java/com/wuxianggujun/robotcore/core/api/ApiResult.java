@@ -1,26 +1,35 @@
 package com.wuxianggujun.robotcore.core.api;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-
 /**
  * 接收发送信息返回的Body
  */
 public class ApiResult {
 
-    private Data data;
+    private Object data;
     private int retCode;
     private String status;
 
-    private class Data {
-        @JsonProperty("message_id")
-        private int messageId;
+    public Object getData() {
+        return data;
+    }
 
-        public int getMessageId() {
-            return messageId;
-        }
+    public void setData(Object data) {
+        this.data = data;
+    }
 
-        public void setMessageId(int messageId) {
-            this.messageId = messageId;
-        }
+    public int getRetCode() {
+        return retCode;
+    }
+
+    public void setRetCode(int retCode) {
+        this.retCode = retCode;
+    }
+
+    public String getStatus() {
+        return status;
+    }
+
+    public void setStatus(String status) {
+        this.status = status;
     }
 }
