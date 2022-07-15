@@ -11,7 +11,7 @@ public class GroupMessageEvent implements GroupMessageListener {
     
     @Override
     public void handler(com.wuxianggujun.robotcore.listener.message.GroupMessageEvent message) {
-        //SendGroupForwardMessage sendGroupForwardMessage = new SendGroupForwardMessage(message.getMessage());
+        SendGroupForwardMessage sendGroupForwardMessage = new SendGroupForwardMessage(message.getMessage());
         System.out.println("群消息:" + message.getMessage());
     }
 }
