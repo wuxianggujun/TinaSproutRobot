@@ -113,8 +113,6 @@ public class BotRepository {
                 if (Bot.class.equals(botClass)) {
                     //创建了bot对象
                     Bot bot = (Bot) botClass.getDeclaredConstructor().newInstance();
-                    bot.setAge(120);
-                    bot.setName("无相");
                     //接下来要获取注解所在的类
                     //返回表示声明此对象所表示的字段的类或接口的对象
 

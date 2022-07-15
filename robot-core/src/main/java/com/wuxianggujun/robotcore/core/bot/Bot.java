@@ -1,22 +1,32 @@
 package com.wuxianggujun.robotcore.core.bot;
 
+import com.wuxianggujun.robotcore.listener.message.MessageEvent;
+import org.springframework.stereotype.Component;
+
+@Component
 public class Bot {
-    private int age = 10;
-    private String name;
+    private long selfId;
 
-    public int getAge() {
-        return age;
+    private MessageEvent messageEvent;
+
+
+    public long getSelfId() {
+        return selfId;
     }
 
-    public void setAge(int age) {
-        this.age = age;
+    public void setSelfId(long selfId) {
+        this.selfId = selfId;
     }
 
-    public String getName() {
-        return name;
+    public MessageEvent getMessageEvent() {
+        return messageEvent;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMessageEvent(MessageEvent messageEvent) {
+        this.messageEvent = messageEvent;
     }
+    
+    
+    
+    
 }

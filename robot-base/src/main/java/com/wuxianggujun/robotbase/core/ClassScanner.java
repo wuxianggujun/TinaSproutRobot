@@ -3,7 +3,6 @@ package com.wuxianggujun.robotbase.core;
 import java.io.IOException;
 import java.net.JarURLConnection;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.jar.JarEntry;
@@ -12,7 +11,9 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class ClassScanner {
-
+    /**
+     * 加载指定包名的类，例如 com.caozhihu.spring
+     */
     public static List<Class<?>> scannerCLasses(String packageName) throws IOException {
         String path = packageName.replace(".", "/");
         // 线程上下文类加载器默认是应用类加载器，即 ClassLoader.getSystemClassLoader();
@@ -37,15 +38,14 @@ public class ClassScanner {
                 }).collect(Collectors.toList());
     }
 
-    private static Collection<Class<?>> getClassesFromJar(String jarFilePath, String path) throws IOException {
+    private static List<Class<?>> getClassesFromJar(String jarFilePath, String path) throws IOException {
         List<String> classNames = Collections.list(new JarFile(jarFilePath).entries()).stream()
                 .map(JarEntry::getName)
                 .filter(entryName -> entryName.startsWith(path) && entryName.endsWith(".class"))
                 .map(entryName -> entryName.replace("/", ".").substring(0, entryName.length() - 6))
                 .collect(Collectors.toList());
         List<Class<?>> classes = new ArrayList<>();
-        //使用类的全限定类名初始化类，并将类对象保存。
-
+        // 使用类的全限定类名初始化类，并将类对象保存
         try {
             for (String className : classNames) classes.add(Class.forName(className));
         } catch (ClassNotFoundException e) {
@@ -53,6 +53,4 @@ public class ClassScanner {
         }
         return classes;
     }
-
-
 }

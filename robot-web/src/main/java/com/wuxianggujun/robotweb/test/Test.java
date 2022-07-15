@@ -2,6 +2,7 @@ package com.wuxianggujun.robotweb.test;
 
 import annotation.MessageEvent;
 import annotation.enums.MessageEventType;
+import com.wuxianggujun.robotbase.annotation.AutoWired;
 import com.wuxianggujun.robotcore.annotation.BotAnnotation;
 import com.wuxianggujun.robotcore.core.bot.Bot;
 
@@ -10,7 +11,7 @@ public class Test {
     @BotAnnotation
     private int i = 1000;
 
-    @BotAnnotation
+    @AutoWired
     private Bot bot;
 
     public int getI() {

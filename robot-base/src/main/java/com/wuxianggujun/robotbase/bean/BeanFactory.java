@@ -7,25 +7,34 @@ import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
 
+/**
+ * @author czwbig
+ * @since 2020/3/1
+ */
 public class BeanFactory {
     private static final Map<Class<?>, Object> beans = new ConcurrentHashMap<>();
     /**
-     * 带有@AutoWired 注解修饰的类
+     * 带有 @AutoWired 注解修饰的属性的类
      */
     private static final Set<Class<?>> beansHasAutoWiredField = Collections.synchronizedSet(new HashSet<>());
 
-    public static Object getBean(Class<?> clazz) {
-        return beans.get(clazz);
+    public static Object getBean(Class<?> cls) {
+        return beans.get(cls);
     }
 
-    public static void initBeans(List<Class<?>> classList) throws InvocationTargetException, NoSuchMethodException, InstantiationException, IllegalAccessException {
-        /**
-         * 这里需要创建容器，不能修改原引用
-         */
+    /**
+     * 根据类列表 classList 来查找所有需要初始化的类并放入 Component 工厂，
+     * 并且处理类中所有带 @AutoWired 注解的属性的依赖问题。
+     */
+    public static void initBean(List<Class<?>> classList) throws Exception {
+        // 因为类定义后续处理类中 @RequestMapping 注解生成处理器时还要使用，
+        // 因此这里要创建新容器，不能修改原引用
         List<Class<?>> classesToCreate = new ArrayList<>(classList);
-        //被Aspect修饰的类
+        // 被 @Aspect 注解的切面类
         List<Class<?>> aspectClasses = new ArrayList<>();
+
         for (Class<?> aClass : classesToCreate) {
             if (aClass.isAnnotationPresent(Aspect.class)) {
                 aspectClasses.add(aClass);
@@ -33,28 +42,38 @@ public class BeanFactory {
                 createBean(aClass);
             }
         }
-        //使用动态代理创建AOP
-        //resolveAop(aspectClasses);
+        // 使用动态代理处理AOP
+        //resolveAOP(aspectClasses);
+
         // 有的类中某个属性已经通过 @AutoWired 注入了旧的被代理的对象,重新创建它们
         for (Class<?> aClass : beansHasAutoWiredField) {
             createBean(aClass);
         }
     }
 
-    private static void createBean(Class<?> aClass) throws NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
-        //初始化对象
+    static Function<String, String> takeToBrackets = (strWithBrackets) -> strWithBrackets.substring(0, strWithBrackets.indexOf("("));
+
+    /**
+     * 通过 Class 对象创建实例
+     *
+     * @param aClass 需要创建实例的 Class 对象
+     */
+    private static void createBean(Class<?> aClass) throws IllegalAccessException, InstantiationException, NoSuchMethodException, InvocationTargetException {
+        // 只处理 @Component / @Controller 注解的类
+        // 初始化对象
         Object bean = aClass.getDeclaredConstructor().newInstance();
         // 遍历类中所有定义的属性，如果属性带有 @AutoWired 注解，则需要注入对应依赖
         for (Field field : aClass.getDeclaredFields()) {
             if (!field.isAnnotationPresent(AutoWired.class)) {
                 continue;
             }
-            //将需要注入其他的Bean的类，保存下来，因为AOP代理类生成之后，需要更新他们
+            // 将需要注入其他 Bean 的类保存起来，因为等 AOP 代理类生成之后，需要更新它们
             BeanFactory.beansHasAutoWiredField.add(aClass);
             Class<?> fieldType = field.getType();
             field.setAccessible(true);
             if (fieldType.isInterface()) {
-                //如果依赖的类型是接口，则查询其实现类
+                // 如果依赖的类型是接口，则查询其实现类,
+                // class1.isAssignableFrom(class2) = true; class1 可以从 class2 赋值，代表class2是class1类型，可分配class2对象给class1
                 for (Class<?> key : BeanFactory.beans.keySet()) {
                     if (fieldType.isAssignableFrom(key)) {
                         fieldType = key;
@@ -68,10 +87,10 @@ public class BeanFactory {
         beans.put(aClass, bean);
     }
 
-    /**
-     * 对于所有被 @Aspect 注解修饰的类，
-     * 遍历他们定义的方法，处理 @Pointcut、@Before 以及 @After 注解
-     */
+//    /**
+//     * 对于所有被 @Aspect 注解修饰的类，
+//     * 遍历他们定义的方法，处理 @Pointcut、@Before 以及 @After 注解
+//     */
 //    private static void resolveAOP(List<Class<?>> aspectClasses)
 //            throws ClassNotFoundException, IllegalAccessException, InstantiationException {
 //        for (Class<?> aClass : aspectClasses) {
@@ -119,5 +138,4 @@ public class BeanFactory {
 //            BeanFactory.beans.put(target.getClass(), proxy);
 //        }
 //    }
-
 }
