@@ -25,14 +25,14 @@ public abstract class ApiSend {
 
     public abstract Map<String, Object> getParams();
 
-     public Map<String, String> getHeaders() {
+    public Map<String, String> getHeaders() {
         return headers;
     }
 
 
     public void send(String actions) {
         String body = HttpUtil.createGet(url + actions).addHeaders(headers).form(getParams()).execute().body();
-        System.out.println("这样子不会有很多："+body);
+        System.out.println("这样子不会有很多：" + body);
 
     }
 
