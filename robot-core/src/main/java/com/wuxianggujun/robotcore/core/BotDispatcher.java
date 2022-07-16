@@ -55,30 +55,16 @@ public class BotDispatcher {
         //反序列化的时候如果多了其他属性,不抛出异常
         objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
         messageEventContext = MessageEventContext.getInstance();
-
-
     }
 
 
     public void handle(String text) {
-
+        System.out.println(text);
         threadPool.submit(() -> {
             try {
                 JsonNode jsonNode = objectMapper.readTree(text);
                 JsonNode postType = jsonNode.get("post_type");
                 System.out.println(jsonNode.asText());
-                //先创建机器人实例对象
-                JsonNode self_id = jsonNode.get("self_id");
-
-
-            /*   BotRepository botRepository = new BotRepository("com.wuxianggujun", Scanners.FieldsAnnotated);
-
-                try {
-                    botRepository.getBotField();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }*/
-
                 //解析JSON判断是不是message消息还是心跳包
                 if (postType.asText().equals("message")) {
 

@@ -75,7 +75,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
             if (frame instanceof TextWebSocketFrame) {
                 TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
                 BotDispatcher.getInstance().handle(textFrame.text());
-                logger.info("接收到TXT消息: " + textFrame.text());
             } else if (frame instanceof PongWebSocketFrame) {
                 logger.info("接收到pong消息");
             } else if (frame instanceof CloseWebSocketFrame) {

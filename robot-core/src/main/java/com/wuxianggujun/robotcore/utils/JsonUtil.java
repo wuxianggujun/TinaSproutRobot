@@ -1,16 +1,21 @@
 package com.wuxianggujun.robotcore.utils;
 
+import cn.hutool.core.util.StrUtil;
+import cn.hutool.extra.spring.SpringUtil;
+import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JavaType;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.SerializationFeature;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.datatype.jsr310.ser.LocalDateTimeSerializer;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.HashMap;
+import java.util.Collections;
 import java.util.Map;
 
 public class JsonUtil {
@@ -18,19 +23,28 @@ public class JsonUtil {
 
     static {
         JavaTimeModule timeModule = new JavaTimeModule();
+        //对象的所有字段全部列入
+        objectMapper.setSerializationInclusion(JsonInclude.Include.ALWAYS);
+        //取消默认转换timestamps形式
+        objectMapper.configure(SerializationFeature.WRITE_DATES_AS_TIMESTAMPS, false);
+        //忽略空Bean转json的错误
+        objectMapper.configure(SerializationFeature.FAIL_ON_EMPTY_BEANS, false);
         // 设置LocalDateTime的序列化格式
         DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         timeModule.addSerializer(LocalDateTime.class, new LocalDateTimeSerializer(dateTimeFormatter));
         objectMapper.registerModule(timeModule);
+        //忽略 在json字符串中存在，但是在java对象中不存在对应属性的情况。防止错误
+        objectMapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
     }
 
+
     public static <T> String obj2String(T obj) {
-        if(obj == null){
+        if (obj == null) {
             return null;
         }
         String s = null;
         try {
-            s = obj instanceof String ? (String)obj :  objectMapper.writeValueAsString(obj);
+            s = obj instanceof String ? (String) obj : objectMapper.writeValueAsString(obj);
         } catch (JsonProcessingException e) {
             e.printStackTrace();
         }
@@ -49,12 +63,12 @@ public class JsonUtil {
     }
 
     public static <T> T string2Obj(String str, Class<T> clazz) {
-        if(str == null || str.length()==0 || clazz == null){
+        if (str == null || str.length() == 0 || clazz == null) {
             return null;
         }
         T t = null;
         try {
-            t = clazz.equals(String.class)? (T)str : objectMapper.readValue(str,clazz);
+            t = clazz.equals(String.class) ? (T) str : objectMapper.readValue(str, clazz);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -65,7 +79,7 @@ public class JsonUtil {
      * 在字符串与集合对象转换时使用
      */
     public static <T> T string2Obj(String str, TypeReference<T> typeReference) {
-        if (str ==null || str.length() ==0 || typeReference == null) {
+        if (str == null || str.length() == 0 || typeReference == null) {
             return null;
         }
         try {
@@ -87,32 +101,63 @@ public class JsonUtil {
         }
     }
 
-    //亮点：模拟构造方法设计模式提供类似于阿里巴巴FastJSON的put方式构造JSON功能
-    public static JsonUtil.JsonBuilder builder() {
-        return new JsonUtil.JsonBuilder();
+    /**
+     * 序列化为JSON字符串
+     *
+     * @param obj obj
+     * @return {@link String}
+     */
+    public static String toJsonString(Object obj) {
+        if (obj == null) return null;
+        String result = null;
+        try {
+            result = objectMapper.writeValueAsString(obj);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return result;
     }
 
-    public static class JsonBuilder {
-        private Map<String ,Object> map = new HashMap<>();
 
-        JsonBuilder() {
+    /**
+     * 解析对象
+     * 反序列化为Object
+     *
+     * @param clazz   clazz
+     * @param jsonStr json str
+     * @return {@link T}
+     */
+    public static <T> T parseObject(String jsonStr, Class<T> clazz) {
+        if (StrUtil.isBlank(jsonStr) || clazz == null) return null;
+        T t = null;
+        try {
+            t = objectMapper.readValue(jsonStr, clazz);
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
         }
-        public JsonUtil.JsonBuilder put(String key ,Object value){
-            map.put(key,value);
-            return this;
-        }
-
-        public String build() {
-
-            //ObjectMapper objectMapper = new ObjectMapper();
-            //ObjectMapper objectMapper = JsonUtil.objectMapper;
-            
-            try {
-                return objectMapper.writeValueAsString(this.map);
-            } catch (JsonProcessingException e) {
-                e.printStackTrace();
-            }
-            return "{}";
-        }
+        return t;
     }
+
+
+    /**
+     * 解析Map
+     * 反序列化为Map集合
+     *
+     * @param mapJsonStr 地图json str
+     * @param kClazz     k clazz
+     * @param vClazz     v clazz
+     * @return {@link Map}<{@link K}, {@link V}>
+     */
+    public static <K, V> Map<K, V> parseMap(String mapJsonStr, Class<K> kClazz, Class<V> vClazz) {
+        if (StrUtil.isBlank(mapJsonStr) || kClazz == null || vClazz == null) return Collections.emptyMap();
+        Map<K, V> map = Collections.EMPTY_MAP;
+        try {
+            map = objectMapper.readValue(mapJsonStr, objectMapper.getTypeFactory().constructParametricType(Map.class, kClazz, vClazz));
+        } catch (JsonProcessingException e) {
+            e.printStackTrace();
+        }
+        return map;
+    }
+
+
 }

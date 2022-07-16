@@ -1,11 +1,14 @@
 package com.wuxianggujun.robotcore.core.bot;
 
+import com.wuxianggujun.robotcore.core.api.ApiResult;
+import com.wuxianggujun.robotcore.core.api.BaseApi;
 import com.wuxianggujun.robotcore.core.framework.WebSocketClientHandler;
 import com.wuxianggujun.robotcore.core.framework.WebSocketClientInit;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.http.websocketx.TextWebSocketFrame;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -13,6 +16,8 @@ import org.springframework.stereotype.Component;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.locks.Lock;
+import java.util.concurrent.locks.ReentrantLock;
 
 @Component
 public class BotClient {
@@ -20,6 +25,8 @@ public class BotClient {
     private static final Logger logger = LoggerFactory.getLogger(BotClient.class);
     private Channel channel;
     private Bootstrap bootstrap = null;
+
+    private final Lock lock = new ReentrantLock();
 
 
     public BotClient() {
@@ -56,10 +63,27 @@ public class BotClient {
                     System.out.println("connected");
                 }
             });
-            
+
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }
+    }
+
+    public ApiResult invokeApi(BaseApi baseApi) {
+        this.lock.lock();
+        ApiResult apiResult = null;
+        try {
+            channel.writeAndFlush(new TextWebSocketFrame(baseApi.buildJson()));
+            apiResult = new ApiResult();
+            apiResult.setRetCode(200);
+            apiResult.setStatus("ok");
+            apiResult.setData("Cao");
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            lock.unlock();
+        }
+        return apiResult;
     }
 
 
