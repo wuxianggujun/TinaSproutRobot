@@ -24,7 +24,6 @@ public class BotClient {
     }
 
     private void init() {
-        logger.info("BotClient init....");
         bootstrap = new Bootstrap();
         // 主线程组
         EventLoopGroup workerGroup = new NioEventLoopGroup();
