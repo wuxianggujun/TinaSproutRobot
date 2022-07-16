@@ -1,8 +1,8 @@
 package com.wuxianggujun;
 
+import cn.hutool.extra.spring.SpringUtil;
 import com.wuxianggujun.robot.event.RegisterEventListener;
 import com.wuxianggujun.robotcore.core.bot.BotClient;
-import com.wuxianggujun.robotcore.core.framework.WebSocketClient;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -17,7 +17,7 @@ public class RobotWebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         RegisterEventListener.register();
-        BotClient botClient = new BotClient();
+        BotClient botClient = SpringUtil.getBean(BotClient.class);
         botClient.connection();
     }
 }
