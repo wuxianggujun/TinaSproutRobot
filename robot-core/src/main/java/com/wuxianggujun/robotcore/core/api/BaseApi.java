@@ -20,7 +20,7 @@ public abstract class BaseApi {
         Map<String, Object> map = new HashMap<>();
         map.put("actions", this.getAction());
         map.put("params", this.getParams());
-        map.put("echo", this.getEcho());
+        //map.put("echo", this.getEcho());
         return JsonUtil.toJsonString(map);
     }
 

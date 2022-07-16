@@ -16,7 +16,7 @@ public class SendGroupMessage extends BaseApi {
 
     @Override
     public String getAction() {
-        return "send_group_msg";
+        return "/send_group_msg";
     }
 
     @Override
