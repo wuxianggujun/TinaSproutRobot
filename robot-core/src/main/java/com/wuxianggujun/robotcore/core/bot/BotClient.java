@@ -13,22 +13,25 @@ import io.netty.handler.codec.http.HttpObjectAggregator;
 import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
 import io.netty.handler.timeout.IdleStateHandler;
 
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 public class BotClient {
-    private String host;
-    private int port;
     private Channel channel;
     private Bootstrap bootstrap = null;
 
-    public BotClient(String host, int port) {
-        this.host = host;
-        this.port = port;
+    private final String url;
+
+  
+    public BotClient(String url) {
+        this.url = url;
         init();
     }
 
     private void init() {
         bootstrap = new Bootstrap();
+        // 主线程组
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup).option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(NioSocketChannel.class)
@@ -56,30 +59,33 @@ public class BotClient {
         if (channel != null && channel.isActive()) {
             return;
         }
-        
-    }
-
-    public void start() {
-        ChannelFuture f = bootstrap.connect(host, port);
-        //断线重连
-        f.addListener(new ChannelFutureListener() {
-            @Override
-            public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                if (!channelFuture.isSuccess()) {
-                    final EventLoop loop = channelFuture.channel().eventLoop();
-                    loop.schedule(new Runnable() {
-                        @Override
-                        public void run() {
-                            System.out.println("not connect service");
-                            start();
-                        }
-                    }, 1L, TimeUnit.SECONDS);
-                } else {
-                    channel = channelFuture.channel();
-                    System.out.println("connected");
+        try {
+            URI uri = new URI(url);
+            ChannelFuture f = bootstrap.connect(uri.getHost(), uri.getPort());
+            //断线重连
+            f.addListener(new ChannelFutureListener() {
+                @Override
+                public void operationComplete(ChannelFuture channelFuture) throws Exception {
+                    if (!channelFuture.isSuccess()) {
+                        final EventLoop loop = channelFuture.channel().eventLoop();
+                        loop.schedule(new Runnable() {
+                            @Override
+                            public void run() {
+                                System.out.println("not connect service");
+                                connection();
+                            }
+                        }, 1L, TimeUnit.SECONDS);
+                    } else {
+                        channel = channelFuture.channel();
+                        System.out.println("connected");
+                    }
                 }
-            }
-        });
+            });
+
+
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+        }
     }
 
 
