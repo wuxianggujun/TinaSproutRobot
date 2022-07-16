@@ -1,58 +1,36 @@
 package com.wuxianggujun.robotcore.core.bot;
 
-import com.wuxianggujun.robotcore.core.framework.WebSocketClientHandler;
+import com.wuxianggujun.robotcore.core.framework.WebSocketClientInit;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.buffer.Unpooled;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
-import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.DelimiterBasedFrameDecoder;
-import io.netty.handler.codec.http.HttpClientCodec;
-import io.netty.handler.codec.http.HttpObjectAggregator;
-import io.netty.handler.codec.http.websocketx.WebSocketFrameAggregator;
-import io.netty.handler.timeout.IdleStateHandler;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.concurrent.TimeUnit;
 
 public class BotClient {
+
+    private static final Logger logger = LoggerFactory.getLogger(BotClient.class);
     private Channel channel;
     private Bootstrap bootstrap = null;
 
-    private final String url;
 
-  
-    public BotClient(String url) {
-        this.url = url;
+    public BotClient() {
         init();
     }
 
     private void init() {
+        logger.info("BotClient init....");
         bootstrap = new Bootstrap();
         // 主线程组
         EventLoopGroup workerGroup = new NioEventLoopGroup();
         bootstrap.group(workerGroup).option(ChannelOption.SO_KEEPALIVE, true)
                 .channel(NioSocketChannel.class)
-                .handler(new ChannelInitializer<SocketChannel>() {
-                    @Override
-                    protected void initChannel(SocketChannel ch) throws Exception {
-                        ChannelPipeline pipeline = ch.pipeline();
-                        pipeline.addLast(new DelimiterBasedFrameDecoder(Integer.MAX_VALUE,
-                                Unpooled.copiedBuffer(System.getProperty("line.separator").getBytes())));
-
-                        //字符串编码解码
-                        pipeline.addLast(new HttpClientCodec());
-                        pipeline.addLast(new HttpObjectAggregator(1024 * 1024 * 100));
-                        pipeline.addLast(new WebSocketFrameAggregator(1024 * 1024 * 100));
-                        //心跳检测
-                        pipeline.addLast(new IdleStateHandler(0, 4, 0, TimeUnit.SECONDS));
-                        //客户端的逻辑
-                        pipeline.addLast(new WebSocketClientHandler());
-
-                    }
-                });
+                .handler(new WebSocketClientInit());
     }
 
     public void connection() {
@@ -60,7 +38,8 @@ public class BotClient {
             return;
         }
         try {
-            URI uri = new URI(url);
+            URI uri = new URI(BotConfig.URL);
+            logger.info(uri.toString());
             ChannelFuture f = bootstrap.connect(uri.getHost(), uri.getPort());
             //断线重连
             f.addListener(new ChannelFutureListener() {
@@ -89,12 +68,12 @@ public class BotClient {
     }
 
 
-    public Channel getChannel() {
-        if (channel == null || !channel.isActive() || !channel.pipeline().get(WebSocketClientHandler.class).getWebSocketClientHandshakes().isHandshakeComplete()) {
-            throw new RuntimeException(String.format("[%s]连接失败", "缇娜-斯普朗特"));
-        }
-        return channel;
-    }
+//    public Channel getChannel() {
+//        if (channel == null || !channel.isActive() || !channel.pipeline().get(WebSocketClientHandler.class).getWebSocketClientHandshakes().isHandshakeComplete()) {
+//            throw new RuntimeException(String.format("[%s]连接失败", "缇娜-斯普朗特"));
+//        }
+//        return channel;
+//    }
 
 
 }

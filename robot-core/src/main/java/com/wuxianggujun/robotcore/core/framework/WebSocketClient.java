@@ -37,7 +37,7 @@ import java.net.URI;
  */
 public final class WebSocketClient {
 
-    //static final String URL = System.getProperty("url", "ws://127.0.0.1:8001/websocket");
+  /*  //static final String URL = System.getProperty("url", "ws://127.0.0.1:8001/websocket");
     static final String URL = System.getProperty("url", "ws://wuxianggujun.com:8001/websocket");
 
     public static void main(String[] args) throws Exception {
@@ -122,5 +122,5 @@ public final class WebSocketClient {
         } finally {
             group.shutdownGracefully();
         }
-    }
+    }*/
 }

@@ -1,87 +1,92 @@
 package com.wuxianggujun.robotcore.core.framework;
 
-import com.wuxianggujun.robotcore.core.BotDispatcher;
-import io.netty.channel.*;
+import com.wuxianggujun.robotcore.core.bot.BotConfig;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelHandlerContext;
+import io.netty.channel.ChannelPromise;
+import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
-import io.netty.util.CharsetUtil;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import java.net.URI;
 
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
-    private WebSocketClientHandshaker handshakes;
-    private ChannelPromise handshakeFuture;
+
+    private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandler.class);
+
+    //这个类主要实现的就是client和server端之间的握手。
+    private WebSocketClientHandshaker handshaker = null;
+    private ChannelPromise handshakeFuture = null;
 
     public WebSocketClientHandler() {
+      handshaker = WebSocketClientHandshakerFactory.newHandshaker(URI.create(BotConfig.URL), WebSocketVersion.V13, null, true, new DefaultHttpHeaders());
 
     }
 
-    public WebSocketClientHandler(WebSocketClientHandshaker handshakes) {
-        this.handshakes = handshakes;
-    }
-
-    public WebSocketClientHandshaker getWebSocketClientHandshakes() {
-        return handshakes;
-    }
-
-    public ChannelFuture handshakeFuture() {
-        return handshakeFuture;
-    }
-
-    @Override
     public void handlerAdded(ChannelHandlerContext ctx) {
-        handshakeFuture = ctx.newPromise();
+        this.handshakeFuture = ctx.newPromise();
+
     }
 
     @Override
-    public void channelActive(ChannelHandlerContext ctx) {
-        handshakes.handshake(ctx.channel());
-    }
-
-    @Override
-    public void channelInactive(ChannelHandlerContext ctx) {
-        System.out.println("WebSocket Client disconnected!");
-    }
-
-    @Override
-    public void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
-        Channel ch = ctx.channel();
-        if (!handshakes.isHandshakeComplete()) {
+    protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
+        if (!this.handshaker.isHandshakeComplete()) {
             try {
-                handshakes.finishHandshake(ch, (FullHttpResponse) msg);
-                System.out.println("WebSocket 客户端已连接！");
-                handshakeFuture.setSuccess();
+                FullHttpResponse response = (FullHttpResponse) msg;
+                this.handshaker.finishHandshake(ctx.channel(), response);
+                logger.info("websocket Handshake 完成!");
+                this.handshakeFuture.setSuccess();
             } catch (WebSocketHandshakeException e) {
-                System.out.println("WebSocket 客户端连接失败！");
+                logger.info("websocket连接失败!");
                 handshakeFuture.setFailure(e);
             }
             return;
         }
 
-        if (msg instanceof FullHttpResponse) {
-            FullHttpResponse response = (FullHttpResponse) msg;
-            throw new IllegalStateException(
-                    "Unexpected FullHttpResponse (getStatus=" + response.status() +
-                            ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
-        }
 
-        WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            BotDispatcher.getInstance().handle(textFrame.text());
-            System.out.println("WebSocket 客户端收到消息: " + textFrame.text());
-        } else if (frame instanceof PongWebSocketFrame) {
-            System.out.println("WebSocket Client received pong");
-        } else if (frame instanceof CloseWebSocketFrame) {
-            System.out.println("WebSocket Client received closing");
-            ch.close();
+        if (msg instanceof TextWebSocketFrame) {
+            TextWebSocketFrame textWebSocketFrame = (TextWebSocketFrame) msg;
+            System.out.println("Text:" + textWebSocketFrame);
+        }
+        if (msg instanceof CloseWebSocketFrame) {
+            System.out.println("WebSocketClientHandler::CloseWebSocketFrame");
         }
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
-        cause.printStackTrace();
-        if (!handshakeFuture.isDone()) {
-            handshakeFuture.setFailure(cause);
-        }
-        ctx.close();
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        this.handshakeFuture = ctx.newPromise();
     }
+
+    @Override
+    public void channelActive(ChannelHandlerContext ctx) {
+        handshaker.handshake(ctx.channel());
+    }
+    
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println("WebSocketClientHandler::exceptionCaught");
+        cause.printStackTrace();
+        ctx.channel().close();
+    }
+
+    public void setHandshaker(WebSocketClientHandshaker handshaker) {
+        this.handshaker = handshaker;
+    }
+
+    public ChannelFuture handshakeFuture() {
+        return this.handshakeFuture;
+    }
+
+    public ChannelPromise getHandshakeFuture() {
+        return handshakeFuture;
+    }
+
+    public void setHandshakeFuture(ChannelPromise handshakeFuture) {
+        this.handshakeFuture = handshakeFuture;
+    }
+
 }

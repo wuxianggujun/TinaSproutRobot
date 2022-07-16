@@ -17,6 +17,7 @@ public class RobotWebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         RegisterEventListener.register();
-        BotClient botClient = new BotClient("ws://wuxianggujun.com:8001/websocket");
+        BotClient botClient = new BotClient();
+        botClient.connection();
     }
 }
