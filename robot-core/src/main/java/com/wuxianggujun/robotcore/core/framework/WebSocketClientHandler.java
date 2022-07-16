@@ -7,14 +7,19 @@ import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 
 public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> {
-    private final WebSocketClientHandshaker handshakes;
+    private WebSocketClientHandshaker handshakes;
     private ChannelPromise handshakeFuture;
-    //序列化JSON转化为对象
-    //private ObjectMapper objectMapper;
+
+    public WebSocketClientHandler() {
+
+    }
 
     public WebSocketClientHandler(WebSocketClientHandshaker handshakes) {
         this.handshakes = handshakes;
-        //this.objectMapper = new ObjectMapper();
+    }
+
+    public WebSocketClientHandshaker getWebSocketClientHandshakes() {
+        return handshakes;
     }
 
     public ChannelFuture handshakeFuture() {
@@ -45,7 +50,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 System.out.println("WebSocket 客户端已连接！");
                 handshakeFuture.setSuccess();
             } catch (WebSocketHandshakeException e) {
-                System.out.println("WebSocket Client failed to connect");
+                System.out.println("WebSocket 客户端连接失败！");
                 handshakeFuture.setFailure(e);
             }
             return;
@@ -61,7 +66,6 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            //objectMapper.disable(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES);
             BotDispatcher.getInstance().handle(textFrame.text());
             System.out.println("WebSocket 客户端收到消息: " + textFrame.text());
         } else if (frame instanceof PongWebSocketFrame) {
