@@ -18,5 +18,6 @@ public class GroupMessageEvent implements GroupMessageListener{
 
 # 编译
 要先使用Idea工具类上的构建->重新构建项目之后才可以运行SprigBoot,不然会报错找不到类
-# 延伸阅读
-
+# 废了，废了
+使用WebSocket给服务器发送信息，总是API不存在，给我报错404.这个就只实现了监听群消息和私信消息，使用了netty对接服务器的WebSocket
+解决不了问题，我的代码写的也很垃圾，如果用使用http进行api通信，可以看一下之前的分支，我是后面几次的提交才尝试使用websocket访问api
