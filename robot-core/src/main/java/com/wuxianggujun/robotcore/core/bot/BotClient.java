@@ -44,26 +44,19 @@ public class BotClient {
             logger.info(uri.toString());
             ChannelFuture f = bootstrap.connect(uri.getHost(), uri.getPort());
             //断线重连
-            f.addListener(new ChannelFutureListener() {
-                @Override
-                public void operationComplete(ChannelFuture channelFuture) throws Exception {
-                    if (!channelFuture.isSuccess()) {
-                        final EventLoop loop = channelFuture.channel().eventLoop();
-                        loop.schedule(new Runnable() {
-                            @Override
-                            public void run() {
-                                System.out.println("not connect service");
-                                connection();
-                            }
-                        }, 1L, TimeUnit.SECONDS);
-                    } else {
-                        channel = channelFuture.channel();
-                        System.out.println("connected");
-                    }
+            f.addListener((ChannelFutureListener) channelFuture -> {
+                if (!channelFuture.isSuccess()) {
+                    final EventLoop loop = channelFuture.channel().eventLoop();
+                    loop.schedule(() -> {
+                        System.out.println("not connect service");
+                        connection();
+                    }, 1L, TimeUnit.SECONDS);
+                } else {
+                    channel = channelFuture.channel();
+                    System.out.println("connected");
                 }
             });
-
-
+            
         } catch (URISyntaxException e) {
             e.printStackTrace();
         }

@@ -1,9 +1,11 @@
 package com.wuxianggujun.robotcore.core.framework;
 
+import com.wuxianggujun.robotcore.core.BotDispatcher;
 import com.wuxianggujun.robotcore.core.bot.BotConfig;
 import io.netty.channel.*;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
+import io.netty.handler.codec.http.HttpHeaders;
 import io.netty.handler.codec.http.websocketx.*;
 import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
@@ -20,8 +22,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private ChannelPromise handshakeFuture = null;
 
     public WebSocketClientHandler() {
-        handshaker = WebSocketClientHandshakerFactory.newHandshaker(URI.create(BotConfig.URL), WebSocketVersion.V13, null, true, new DefaultHttpHeaders());
-
+       
     }
 
     public ChannelFuture handshakeFuture() {
@@ -69,17 +70,20 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                             ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
-        WebSocketFrame frame = (WebSocketFrame) msg;
-        if (frame instanceof TextWebSocketFrame) {
-            TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
-            //ch.writeAndFlush(new TextWebSocketFrame("我是客户端，我连接了服务器！"));
-            logger.info("接收到TXT消息: " + textFrame.text());
-        } else if (frame instanceof PongWebSocketFrame) {
-            logger.info("接收到pong消息");
-        } else if (frame instanceof CloseWebSocketFrame) {
-            logger.info("接收到closing消息");
-            ch.close();
+        if (msg instanceof WebSocketFrame){
+            WebSocketFrame frame = (WebSocketFrame) msg;
+            if (frame instanceof TextWebSocketFrame) {
+                TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+                BotDispatcher.getInstance().handle(textFrame.text());
+                logger.info("接收到TXT消息: " + textFrame.text());
+            } else if (frame instanceof PongWebSocketFrame) {
+                logger.info("接收到pong消息");
+            } else if (frame instanceof CloseWebSocketFrame) {
+                logger.info("接收到closing消息");
+                ch.close();
+            }
         }
+    
     }
 
     /**
@@ -100,6 +104,9 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
      */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
+        HttpHeaders httpHeaders = new DefaultHttpHeaders();
+        //这里可以添加请求头部信息
+        handshaker = WebSocketClientHandshakerFactory.newHandshaker(URI.create(BotConfig.URL), WebSocketVersion.V13, null, true, httpHeaders);
         handshaker.handshake(ctx.channel());
     }
 
