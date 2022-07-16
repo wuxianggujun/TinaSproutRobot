@@ -39,6 +39,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     }
 
 
+    /**
+     * 接收服务器传来的消息，进行业务处理
+     * @param ctx           the {@link ChannelHandlerContext} which this {@link SimpleChannelInboundHandler}
+     *                      belongs to
+     * @param msg           the message to handle
+     * @throws Exception
+     */
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, Object msg) throws Exception {
         Channel ch = ctx.channel();
@@ -65,6 +72,7 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         WebSocketFrame frame = (WebSocketFrame) msg;
         if (frame instanceof TextWebSocketFrame) {
             TextWebSocketFrame textFrame = (TextWebSocketFrame) frame;
+            //ch.writeAndFlush(new TextWebSocketFrame("我是客户端，我连接了服务器！"));
             logger.info("接收到TXT消息: " + textFrame.text());
         } else if (frame instanceof PongWebSocketFrame) {
             logger.info("接收到pong消息");
@@ -74,16 +82,33 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
         }
     }
 
+    /**
+     * 客户端与服务器断开连接的时候调用
+     *
+     * @param ctx
+     * @throws Exception
+     */
     @Override
     public void channelInactive(ChannelHandlerContext ctx) throws Exception {
 //        this.handshakeFuture = ctx.newPromise();
     }
 
+    /**
+     * 客户端与服务端创建连接的时候调用
+     *
+     * @param ctx
+     */
     @Override
     public void channelActive(ChannelHandlerContext ctx) {
         handshaker.handshake(ctx.channel());
     }
 
+    /**
+     * 发生异常
+     * @param ctx
+     * @param cause
+     * @throws Exception
+     */
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         logger.info("WebSocketClientHandler::exceptionCaught");

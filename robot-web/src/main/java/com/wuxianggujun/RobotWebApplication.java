@@ -17,7 +17,6 @@ public class RobotWebApplication implements CommandLineRunner {
     @Override
     public void run(String... args) throws Exception {
         RegisterEventListener.register();
-        BotClient botClient = SpringUtil.getBean(BotClient.class);
-        botClient.connection();
+        SpringUtil.getBean(BotClient.class).connection();
     }
 }
