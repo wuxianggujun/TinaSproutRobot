@@ -1,5 +1,6 @@
 package com.wuxianggujun.robotcore.core.bot;
 
+import com.wuxianggujun.robotcore.core.framework.WebSocketClientHandler;
 import com.wuxianggujun.robotcore.core.framework.WebSocketClientInit;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
@@ -67,12 +68,12 @@ public class BotClient {
     }
 
 
-//    public Channel getChannel() {
-//        if (channel == null || !channel.isActive() || !channel.pipeline().get(WebSocketClientHandler.class).getWebSocketClientHandshakes().isHandshakeComplete()) {
-//            throw new RuntimeException(String.format("[%s]连接失败", "缇娜-斯普朗特"));
-//        }
-//        return channel;
-//    }
+    public Channel getChannel() {
+        if (channel == null || !channel.isActive() || !channel.pipeline().get(WebSocketClientHandler.class).getWebSocketClientHandshakes().isHandshakeComplete()) {
+            throw new RuntimeException(String.format("[%s]连接失败", "缇娜-斯普朗特"));
+        }
+        return channel;
+    }
 
 
 }

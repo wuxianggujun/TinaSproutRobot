@@ -1,10 +1,7 @@
 package com.wuxianggujun.robotcore.core.framework;
 
 import com.wuxianggujun.robotcore.core.bot.BotConfig;
-import io.netty.channel.Channel;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelPromise;
-import io.netty.channel.SimpleChannelInboundHandler;
+import io.netty.channel.*;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
@@ -19,12 +16,20 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
     private static final Logger logger = LoggerFactory.getLogger(WebSocketClientHandler.class);
 
     //这个类主要实现的就是client和server端之间的握手。
-    private WebSocketClientHandshaker handshaker = null;
+    private WebSocketClientHandshaker handshaker;
     private ChannelPromise handshakeFuture = null;
 
     public WebSocketClientHandler() {
         handshaker = WebSocketClientHandshakerFactory.newHandshaker(URI.create(BotConfig.URL), WebSocketVersion.V13, null, true, new DefaultHttpHeaders());
 
+    }
+
+    public ChannelFuture handshakeFuture() {
+        return this.handshakeFuture;
+    }
+
+    public WebSocketClientHandshaker getWebSocketClientHandshakes() {
+        return this.handshaker;
     }
 
 
