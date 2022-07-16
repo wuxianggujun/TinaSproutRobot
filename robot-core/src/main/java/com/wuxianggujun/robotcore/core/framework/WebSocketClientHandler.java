@@ -8,6 +8,7 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import io.netty.handler.codec.http.DefaultHttpHeaders;
 import io.netty.handler.codec.http.FullHttpResponse;
 import io.netty.handler.codec.http.websocketx.*;
+import io.netty.util.CharsetUtil;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,13 @@ public class WebSocketClientHandler extends SimpleChannelInboundHandler<Object> 
                 handshakeFuture.setFailure(e);
             }
             return;
+        }
+
+        if (msg instanceof FullHttpResponse) {
+            FullHttpResponse response = (FullHttpResponse) msg;
+            throw new IllegalStateException(
+                    "Unexpected FullHttpResponse (getStatus=" + response.status() +
+                            ", content=" + response.content().toString(CharsetUtil.UTF_8) + ')');
         }
 
         WebSocketFrame frame = (WebSocketFrame) msg;
